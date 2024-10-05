@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreQuestionRequest;
 use App\Http\Requests\UpdateQuestionRequest;
 use App\Models\Question;
+use Illuminate\Support\Facades\Log;
 
 class QuestionController extends Controller
 {
@@ -37,7 +38,9 @@ class QuestionController extends Controller
      */
     public function show(Question $question)
     {
-        //
+        return inertia()->render('Questions/Show', [
+            'question' => $question,
+        ]);
     }
 
     /**
