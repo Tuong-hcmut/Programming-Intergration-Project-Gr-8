@@ -1,3 +1,4 @@
+import { Audio } from '@/Components/ui/audio';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Card } from '@/Components/ui/card';
@@ -6,7 +7,7 @@ import { useTimer } from '@/lib/useTimer';
 import { cn } from '@/lib/utils';
 import { useForm } from '@inertiajs/react';
 import { Check, Mic, Square } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useReactMediaRecorder } from 'react-media-recorder';
 
 export function QuestionWithAnswer({
@@ -29,7 +30,6 @@ export function QuestionWithAnswer({
     const [transcript, setTranscript] = useState('');
     const [usedCueWords, setUsedCueWords] = useState<string[]>([]);
     const stopRecordingTimeout = useRef<NodeJS.Timeout | null>(null);
-    const audioRef = useRef<HTMLAudioElement | null>(null);
 
     const MAX_RECORDING_TIME = 300; // 5 minutes in seconds
 
@@ -68,7 +68,6 @@ export function QuestionWithAnswer({
     });
 
     const isRecording = status === 'recording';
-    const audioUrl = mediaBlobUrl || answer?.audio_link;
 
     const simulateTranscription = () => {
         setTimeout(() => {
@@ -102,12 +101,6 @@ export function QuestionWithAnswer({
         if (ratio >= 0.66) return 'text-yellow-500';
         return 'text-gray-700';
     };
-
-    useEffect(() => {
-        if (audioUrl) {
-            audioRef.current?.load();
-        }
-    }, [audioUrl]);
 
     return (
         <Card className="mx-auto w-full max-w-3xl space-y-6 p-6">
@@ -164,15 +157,10 @@ export function QuestionWithAnswer({
                 </div>
             </div>
 
-            {audioUrl && (
+            {mediaBlobUrl && (
                 <div className="space-y-2">
-                    <h3 className="text-lg font-semibold">Audio Playback</h3>
-
                     <div className="grid grid-cols-[1fr_min-content] grid-rows-[1fr_min-content] items-center gap-x-3 gap-y-1">
-                        <audio controls className="w-full" ref={audioRef}>
-                            <source src={audioUrl} />
-                            Your browser does not support the audio element.
-                        </audio>
+                        <Audio audioUrl={mediaBlobUrl} className="w-full" />
                         <Button
                             onClick={() => {
                                 clearErrors();
@@ -198,14 +186,33 @@ export function QuestionWithAnswer({
                 </div>
             )}
 
-            {transcript && (
-                <div className="space-y-2">
-                    <h3 className="text-lg font-semibold">Transcript</h3>
-                    <p
-                        className="text-sm text-gray-600"
-                        dangerouslySetInnerHTML={highlightCueWords(transcript)}
-                    ></p>
-                </div>
+            {answer && (
+                <section className="space-y-4">
+                    <div className="flex items-center gap-[1ch]">
+                        <h3 className="text-xl font-semibold">Answer</h3>
+                        <p className="text-sm text-gray-600">
+                            by {answer.user?.name}
+                        </p>
+                    </div>
+
+                    <Audio audioUrl={answer.audio_link} className="w-full" />
+
+                    <div className="space-y-2">
+                        <h4 className="text-lg font-semibold">Transcript</h4>
+                        {transcript ? (
+                            <p
+                                className="text-sm text-gray-600"
+                                dangerouslySetInnerHTML={highlightCueWords(
+                                    transcript,
+                                )}
+                            ></p>
+                        ) : (
+                            <p className="text-sm text-gray-600">
+                                Transcription is being processed...
+                            </p>
+                        )}
+                    </div>
+                </section>
             )}
         </Card>
     );

@@ -69,9 +69,7 @@ class AnswerController extends Controller
 
         return inertia()->render('Questions/Show', [
             'question' => $answer->question()->first(),
-            'answer' => $answer,
-            'public' => asset(str_replace('storage/', '', $answer->audio_link)),
-            'storage' => storage_path(),
+            'answer' => $answer->load('user'),
         ]);
     }
 
