@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuestionController;
+use App\Models\Answer;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -27,6 +29,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/question/{question}', [QuestionController::class, 'show'])
         ->name('question.show')
         ->middleware('can:view,question');
+
+    Route::get('/question/{question}/answer/{answer}', [AnswerController::class, 'show'])
+        ->name('answer.show')
+        ->middleware('can:view,question')
+        ->middleware('can:view,answer');
+
+    Route::post('/question/{question}/answer', [AnswerController::class, 'create'])
+        ->name('answer.create')
+        ->middleware('can:view,question')
+        ->can('create', Answer::class);
 });
 
 require __DIR__ . '/auth.php';

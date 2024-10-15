@@ -4,14 +4,16 @@ import { Head } from '@inertiajs/react';
 
 export default function QuestionsShow({
     question,
+    answer,
 }: {
     question: App.Models.Question;
+    answer: App.Models.Answer;
 }) {
     return (
         <Authenticated>
             <Head title="Welcome" />
 
-            <QuestionWithAnswer question={question} />
+            <QuestionWithAnswer question={question} answer={answer} />
         </Authenticated>
     );
 }

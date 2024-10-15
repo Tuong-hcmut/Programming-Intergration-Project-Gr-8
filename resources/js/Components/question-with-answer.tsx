@@ -1,126 +1,76 @@
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Card } from '@/Components/ui/card';
+import { FieldErrorMessage } from '@/Components/ui/form';
+import { useTimer } from '@/lib/useTimer';
 import { cn } from '@/lib/utils';
 import { useForm } from '@inertiajs/react';
 import { Check, Mic, Square } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { LiveAudioVisualizer } from 'react-audio-visualize';
-import { route } from 'ziggy-js';
+import { useReactMediaRecorder } from 'react-media-recorder';
 
 export function QuestionWithAnswer({
     question,
+    answer,
 }: {
     question: App.Models.Question;
+    answer?: App.Models.Answer;
 }) {
-    const { post: postAnswer, setData: setAnswerData } = useForm<{
-        answerAudio: Blob | null;
-    }>({
-        answerAudio: null,
-    });
+    const {
+        post: postAnswer,
+        setData: setAnswerData,
+        errors,
+        clearErrors,
+        reset,
+    } = useForm<{
+        answerAudio: File;
+    }>();
 
-    const [isRecording, setIsRecording] = useState(false);
-    const [recordingStartTime, setRecordingStartTime] = useState<number | null>(
-        null,
-    );
-    const [recordingTime, setRecordingTime] = useState(0);
-    const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
     const [transcript, setTranscript] = useState('');
     const [usedCueWords, setUsedCueWords] = useState<string[]>([]);
-
-    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-    const audioContextRef = useRef<AudioContext | null>(null);
-    const audioChunksRef = useRef<Blob[]>([]);
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-    const streamRef = useRef<MediaStream | null>(null);
-
-    const audioUrl = audioBlob ? URL.createObjectURL(audioBlob) : null;
+    const stopRecordingTimeout = useRef<NodeJS.Timeout | null>(null);
+    const audioRef = useRef<HTMLAudioElement | null>(null);
 
     const MAX_RECORDING_TIME = 300; // 5 minutes in seconds
 
-    const submitAudio = () =>
-        post(`/question/${question.id}/answer`, {
-            data: {
-                answerAudio: audioBlob,
-            },
-            forceFormData: true,
-        });
+    const { startTimer, stopTimer, resetTimer, minutes, seconds } = useTimer();
 
-    useEffect(() => {
-        let interval: NodeJS.Timeout;
-        if (isRecording) {
-            interval = setInterval(() => {
-                if (recordingStartTime) {
-                    const currentTime = Date.now();
-                    const elapsedTime =
-                        (currentTime - recordingStartTime) / 1000;
-                    setRecordingTime(elapsedTime);
-                }
-            }, 100);
-        }
-        return () => clearInterval(interval);
-    }, [isRecording, recordingStartTime]);
-
-    const startRecording = async () => {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                audio: true,
+    const {
+        status,
+        startRecording,
+        stopRecording,
+        mediaBlobUrl,
+        clearBlobUrl,
+    } = useReactMediaRecorder({
+        audio: true,
+        video: false,
+        onStart: () => {
+            // Stop when the time is up
+            stopRecordingTimeout.current = setTimeout(
+                () => stopRecording(),
+                MAX_RECORDING_TIME * 1000,
+            );
+            resetTimer();
+            startTimer();
+        },
+        onStop: (_, blob) => {
+            const file = new File([blob], 'recording.webm', {
+                type: 'audio/webm',
             });
-            streamRef.current = stream;
-            mediaRecorderRef.current = new MediaRecorder(stream);
-            audioChunksRef.current = [];
+            setAnswerData('answerAudio', file);
+            simulateTranscription();
 
-            audioContextRef.current = new AudioContext();
-
-            mediaRecorderRef.current.ondataavailable = (event) => {
-                audioChunksRef.current.push(event.data);
-            };
-
-            mediaRecorderRef.current.onstop = () => {
-                const audioBlob = new Blob(audioChunksRef.current, {
-                    type: 'audio/wav',
-                });
-                setAudioBlob(audioBlob);
-
-                if (streamRef.current) {
-                    const tracks = streamRef.current.getTracks();
-                    tracks.forEach((track) => track.stop());
-                    streamRef.current = null;
-                }
-
-                if (audioContextRef.current) {
-                    audioContextRef.current.close();
-                    audioContextRef.current = null;
-                }
-            };
-
-            mediaRecorderRef.current.start();
-            setIsRecording(true);
-            setRecordingStartTime(Date.now());
-            setRecordingTime(0);
-
-            timeoutRef.current = setTimeout(() => {
-                stopRecording();
-            }, MAX_RECORDING_TIME * 1000);
-        } catch (error) {
-            console.error('Error accessing microphone:', error);
-        }
-    };
-
-    const stopRecording = () => {
-        if (mediaRecorderRef.current && isRecording) {
-            mediaRecorderRef.current.stop();
-            setIsRecording(false);
-            setRecordingStartTime(null);
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
+            if (stopRecordingTimeout.current) {
+                clearTimeout(stopRecordingTimeout.current);
             }
+            stopTimer();
+        },
+    });
 
-            setAnswerData('answerAudio', audioBlob);
-        }
-    };
+    const isRecording = status === 'recording';
+    const audioUrl = mediaBlobUrl || answer?.audio_link;
 
-    const simulateTranscription = (blob: Blob) => {
+    const simulateTranscription = () => {
         setTimeout(() => {
             const transcriptText =
                 "Recently, I had the opportunity to participate in a local tennis tournament. It was an intense competition, with some really skilled opponents. The matches were tough, but after several rounds of hard-fought games, I made it to the final. In that last match, I was up against the defending champion, who had a reputation for being incredibly fast and tactical on the court. The game was incredibly challenging, but I stayed focused and determined. Throughout the tournament, I had kept my mind on two things: giving my best and showing good sportsmanship. Even when things didn't go my way, I respected my opponents and the game, which really helped me stay grounded. In the end, I managed to win the final match and claim the title of champion! It was a thrilling moment, but what I really achieved after that was a sense of personal growth. The tournament reminded me of the importance of perseverance and respect in competition, and those lessons are just as valuable as the trophy itself.";
@@ -147,11 +97,17 @@ export function QuestionWithAnswer({
     };
 
     const getTimeColor = () => {
-        const ratio = recordingTime / MAX_RECORDING_TIME;
+        const ratio = (minutes * 60 + seconds) / MAX_RECORDING_TIME;
         if (ratio >= 0.8) return 'text-red-500';
         if (ratio >= 0.66) return 'text-yellow-500';
         return 'text-gray-700';
     };
+
+    useEffect(() => {
+        if (audioUrl) {
+            audioRef.current?.load();
+        }
+    }, [audioUrl]);
 
     return (
         <Card className="mx-auto w-full max-w-3xl space-y-6 p-6">
@@ -181,7 +137,14 @@ export function QuestionWithAnswer({
 
             <div className="flex flex-col items-center space-y-4">
                 <Button
-                    onClick={isRecording ? stopRecording : startRecording}
+                    onClick={() => {
+                        if (isRecording) {
+                            stopRecording();
+                        } else {
+                            clearBlobUrl();
+                            startRecording();
+                        }
+                    }}
                     className={`flex h-16 w-16 items-center justify-center rounded-full ${
                         isRecording
                             ? 'bg-red-500 hover:bg-red-600'
@@ -194,36 +157,43 @@ export function QuestionWithAnswer({
                         <Mic className="h-6 w-6 text-white" />
                     )}
                 </Button>
-                {isRecording && (
-                    <LiveAudioVisualizer
-                        mediaRecorder={mediaRecorderRef.current!}
-                        width={200}
-                        height={75}
-                        barColor={'rgb(23, 23, 23)'}
-                    />
-                )}
                 <div
                     className={`text-center font-mono text-lg ${getTimeColor()}`}
                 >
-                    {Math.floor(recordingTime / 60)}:
-                    {(Math.floor(recordingTime) % 60)
-                        .toString()
-                        .padStart(2, '0')}{' '}
-                    / 5:00
+                    {minutes}:{seconds.toString().padStart(2, '0')} / 5:00
                 </div>
             </div>
 
             {audioUrl && (
                 <div className="space-y-2">
                     <h3 className="text-lg font-semibold">Audio Playback</h3>
-                    <div className="flex items-center gap-3">
-                        <audio controls className="w-full">
-                            <source src={audioUrl} type="audio/wav" />
+
+                    <div className="grid grid-cols-[1fr_min-content] grid-rows-[1fr_min-content] items-center gap-x-3 gap-y-1">
+                        <audio controls className="w-full" ref={audioRef}>
+                            <source src={audioUrl} />
                             Your browser does not support the audio element.
                         </audio>
-                        <Button onClick={() => postAnswer(route())}>
+                        <Button
+                            onClick={() => {
+                                clearErrors();
+                                postAnswer(
+                                    route('answer.create', {
+                                        question: question.id,
+                                    }),
+                                    {
+                                        onSuccess: () => {
+                                            clearBlobUrl();
+                                            reset();
+                                        },
+                                    },
+                                );
+                            }}
+                        >
                             Submit
                         </Button>
+                        <FieldErrorMessage>
+                            {errors.answerAudio}
+                        </FieldErrorMessage>
                     </div>
                 </div>
             )}
