@@ -25,6 +25,8 @@ class DatabaseSeeder extends Seeder
         } catch (QueryException $e) {
         };
 
-        (new QuestionSeeder())->run();
+        foreach ([QuestionSeeder::class, AnswerSeeder::class] as $seeder) {
+            (new $seeder())->run();
+        }
     }
 }

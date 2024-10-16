@@ -88,14 +88,6 @@ const Routes: Record<App.Route.Name, App.Route.Link> = {
     params: undefined,
     methods: ['DELETE'],
   },
-  'answer.show': {
-    name: 'answer.show',
-    path: '/question/1/answer/{answer}',
-    params: {
-      answer: 'string',
-    },
-    methods: ['GET'],
-  },
   'question.show': {
     name: 'question.show',
     path: '/question/{question}',
@@ -111,6 +103,15 @@ const Routes: Record<App.Route.Name, App.Route.Link> = {
       question: 'string',
     },
     methods: ['POST'],
+  },
+  'answer.show': {
+    name: 'answer.show',
+    path: '/question/{question}/answer/{answer}',
+    params: {
+      question: 'string',
+      answer: 'string',
+    },
+    methods: ['GET'],
   },
   'register': {
     name: 'register',

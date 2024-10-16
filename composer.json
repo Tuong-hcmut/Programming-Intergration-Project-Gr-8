@@ -16,6 +16,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "league/flysystem-path-prefixing": "^3.0",
+        "openai-php/laravel": "^0.10.1",
         "tightenco/ziggy": "^2.3"
     },
     "require-dev": {

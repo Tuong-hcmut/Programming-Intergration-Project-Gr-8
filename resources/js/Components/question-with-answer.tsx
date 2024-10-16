@@ -4,7 +4,7 @@ import { Button } from '@/Components/ui/button';
 import { Card } from '@/Components/ui/card';
 import { FieldErrorMessage } from '@/Components/ui/form';
 import { useTimer } from '@/lib/useTimer';
-import { cn } from '@/lib/utils';
+import { cn, secondsToTime } from '@/lib/utils';
 import { useForm } from '@inertiajs/react';
 import { Check, Mic, Square } from 'lucide-react';
 import { useRef, useState } from 'react';
@@ -17,17 +17,27 @@ export function QuestionWithAnswer({
     question: App.Models.Question;
     answer?: App.Models.Answer;
 }) {
-    const {
-        post: postAnswer,
-        setData: setAnswerData,
-        errors,
-        clearErrors,
-        reset,
-    } = useForm<{
-        answerAudio: File;
-    }>();
+    const answerForm = useForm<{
+        answerAudio: File | null;
+    }>({
+        answerAudio: null,
+    });
+    const postAnswer = () => {
+        answerForm.clearErrors();
+        answerForm.post(
+            route('answer.create', {
+                question: question.id,
+            }),
+            {
+                onSuccess: () => {
+                    clearBlobUrl();
+                    answerForm.reset();
+                },
+                forceFormData: true,
+            },
+        );
+    };
 
-    const [transcript, setTranscript] = useState('');
     const [usedCueWords, setUsedCueWords] = useState<string[]>([]);
     const stopRecordingTimeout = useRef<NodeJS.Timeout | null>(null);
 
@@ -57,8 +67,7 @@ export function QuestionWithAnswer({
             const file = new File([blob], 'recording.webm', {
                 type: 'audio/webm',
             });
-            setAnswerData('answerAudio', file);
-            simulateTranscription();
+            answerForm.setData('answerAudio', file);
 
             if (stopRecordingTimeout.current) {
                 clearTimeout(stopRecordingTimeout.current);
@@ -69,17 +78,33 @@ export function QuestionWithAnswer({
 
     const isRecording = status === 'recording';
 
-    const simulateTranscription = () => {
-        setTimeout(() => {
-            const transcriptText =
-                "Recently, I had the opportunity to participate in a local tennis tournament. It was an intense competition, with some really skilled opponents. The matches were tough, but after several rounds of hard-fought games, I made it to the final. In that last match, I was up against the defending champion, who had a reputation for being incredibly fast and tactical on the court. The game was incredibly challenging, but I stayed focused and determined. Throughout the tournament, I had kept my mind on two things: giving my best and showing good sportsmanship. Even when things didn't go my way, I respected my opponents and the game, which really helped me stay grounded. In the end, I managed to win the final match and claim the title of champion! It was a thrilling moment, but what I really achieved after that was a sense of personal growth. The tournament reminded me of the importance of perseverance and respect in competition, and those lessons are just as valuable as the trophy itself.";
-            setTranscript(transcriptText);
+    const handleUploadRecording = () => {
+        // Request user to choose a file
+        if (!document.querySelector('input#answer-audio')) {
+            const input = document.createElement('input');
+            input.id = 'answer-audio';
+            input.type = 'file';
+            input.accept = 'audio/*';
+            input.onchange = async (event) => {
+                let fileInput = event.target as HTMLInputElement;
+                const file = fileInput.files?.[0];
 
-            const usedWords = question.cue_words.filter((word) =>
-                new RegExp(`\\b${word}s?\\b`, 'i').test(transcriptText),
-            );
-            setUsedCueWords(usedWords);
-        }, 2000);
+                if (file) {
+                    answerForm.setData('answerAudio', file);
+                }
+
+                // Clear files
+                fileInput.value = '';
+            };
+            input.style.display = 'none';
+            document.body.appendChild(input);
+        }
+
+        (
+            document.querySelector(
+                'input#answer-audio',
+            ) as HTMLInputElement | null
+        )?.click();
     };
 
     const highlightCueWords = (text: string) => {
@@ -150,10 +175,29 @@ export function QuestionWithAnswer({
                         <Mic className="h-6 w-6 text-white" />
                     )}
                 </Button>
+
                 <div
                     className={`text-center font-mono text-lg ${getTimeColor()}`}
                 >
-                    {minutes}:{seconds.toString().padStart(2, '0')} / 5:00
+                    {minutes}:{seconds.toString().padStart(2, '0')} /{' '}
+                    {secondsToTime(MAX_RECORDING_TIME)}
+                </div>
+
+                <div className="space-y-1 text-center text-sm text-muted-foreground">
+                    <p>Already recorded? Upload your answer here</p>
+                    <div className="space-x-[1ch]">
+                        <Button size="sm" onClick={handleUploadRecording}>
+                            Choose file
+                        </Button>
+                        <Button
+                            size="sm"
+                            onClick={postAnswer}
+                            disabled={!answerForm.data.answerAudio}
+                        >
+                            Upload
+                        </Button>
+                    </div>
+                    <p>{answerForm.data.answerAudio?.name}</p>
                 </div>
             </div>
 
@@ -161,26 +205,9 @@ export function QuestionWithAnswer({
                 <div className="space-y-2">
                     <div className="grid grid-cols-[1fr_min-content] grid-rows-[1fr_min-content] items-center gap-x-3 gap-y-1">
                         <Audio audioUrl={mediaBlobUrl} className="w-full" />
-                        <Button
-                            onClick={() => {
-                                clearErrors();
-                                postAnswer(
-                                    route('answer.create', {
-                                        question: question.id,
-                                    }),
-                                    {
-                                        onSuccess: () => {
-                                            clearBlobUrl();
-                                            reset();
-                                        },
-                                    },
-                                );
-                            }}
-                        >
-                            Submit
-                        </Button>
+                        <Button onClick={postAnswer}>Submit</Button>
                         <FieldErrorMessage>
-                            {errors.answerAudio}
+                            {answerForm.errors.answerAudio}
                         </FieldErrorMessage>
                     </div>
                 </div>
@@ -190,7 +217,7 @@ export function QuestionWithAnswer({
                 <section className="space-y-4">
                     <div className="flex items-center gap-[1ch]">
                         <h3 className="text-xl font-semibold">Answer</h3>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-muted-foreground">
                             by {answer.user?.name}
                         </p>
                     </div>
@@ -199,15 +226,15 @@ export function QuestionWithAnswer({
 
                     <div className="space-y-2">
                         <h4 className="text-lg font-semibold">Transcript</h4>
-                        {transcript ? (
+                        {answer.transcript ? (
                             <p
-                                className="text-sm text-gray-600"
+                                className="text-sm text-muted-foreground"
                                 dangerouslySetInnerHTML={highlightCueWords(
-                                    transcript,
+                                    answer.transcript,
                                 )}
                             ></p>
                         ) : (
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-muted-foreground">
                                 Transcription is being processed...
                             </p>
                         )}

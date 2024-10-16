@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property int $question_id
@@ -27,6 +27,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder|Answer whereTranscript($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Answer whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Answer whereUserId($value)
+ * @property string|null $transcribe_words
+ * @property-read \App\Models\Question $question
+ * @property-read \App\Models\User $user
+ * @method static \Illuminate\Database\Eloquent\Builder|Answer whereTranscribeWords($value)
+ * @property string|null $transcribed_words
+ * @method static \Illuminate\Database\Eloquent\Builder|Answer whereTranscribedWords($value)
  * @mixin \Eloquent
  */
 class Answer extends Model
@@ -34,6 +40,9 @@ class Answer extends Model
     use HasFactory;
 
     protected $fillable = ['question_id', 'user_id', 'audio_link'];
+    protected $casts = [
+        'transcribe_words' => 'array',
+    ];
 
     public function user(): BelongsTo
     {

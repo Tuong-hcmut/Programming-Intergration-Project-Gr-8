@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreAnswerRequest;
 use App\Http\Requests\UpdateAnswerRequest;
+use App\Jobs\TranscribeAnswer;
 use App\Models\Answer;
 use App\Models\Question;
 use Illuminate\Http\Request;
@@ -28,7 +29,7 @@ class AnswerController extends Controller
     public function create(Question $question, Request $request)
     {
         $form = $request->validate([
-            'answerAudio' => 'required|mimes:wav,mp3,webm',
+            'answerAudio' => 'required|mimes:wav,mp3,webm,mpeg',
         ]);
 
         // Set filename by <question_id>_<user_id>_<YYYYMMDD>_<HHMMSS>.<extension>
@@ -46,6 +47,8 @@ class AnswerController extends Controller
             'audio_link' => Storage::url($path),
         ]);
         $answer->save();
+
+        TranscribeAnswer::dispatch($answer);
 
         return to_route('answer.show', ['question' => $question, 'answer' => $answer]);
     }
@@ -68,7 +71,7 @@ class AnswerController extends Controller
         }
 
         return inertia()->render('Questions/Show', [
-            'question' => $answer->question()->first(),
+            'question' => $answer->question,
             'answer' => $answer->load('user'),
         ]);
     }
