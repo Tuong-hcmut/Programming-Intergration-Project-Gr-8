@@ -5,17 +5,19 @@ import { Card } from '@/Components/ui/card';
 import { FieldErrorMessage } from '@/Components/ui/form';
 import { useTimer } from '@/lib/useTimer';
 import { cn, secondsToTime } from '@/lib/utils';
+import { Answer, Question } from '@/types/models';
 import { useForm } from '@inertiajs/react';
 import { Check, Mic, Square } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useReactMediaRecorder } from 'react-media-recorder';
+import { stemmer } from 'stemmer';
 
 export function QuestionWithAnswer({
     question,
     answer,
 }: {
-    question: App.Models.Question;
-    answer?: App.Models.Answer;
+    question: Question;
+    answer?: Answer;
 }) {
     const answerForm = useForm<{
         answerAudio: File | null;
@@ -38,8 +40,8 @@ export function QuestionWithAnswer({
         );
     };
 
-    const [usedCueWords, setUsedCueWords] = useState<string[]>([]);
     const stopRecordingTimeout = useRef<NodeJS.Timeout | null>(null);
+    const [showAnswerOnly, setShowAnswerOnly] = useState(!!answer);
 
     const MAX_RECORDING_TIME = 300; // 5 minutes in seconds
 
@@ -107,18 +109,29 @@ export function QuestionWithAnswer({
         )?.click();
     };
 
-    const highlightCueWords = (text: string) => {
-        let highlightedText = text;
-        question.cue_words.forEach((word) => {
-            const regex = new RegExp(`\\b${word}s?\\b`, 'gi');
-            highlightedText = highlightedText.replace(
-                regex,
-                (match) =>
-                    `<span class="bg-green-200 underline">${match}</span>`,
-            );
-        });
-        return { __html: highlightedText };
-    };
+    const stemmedCueWords = useMemo(() => {
+        return question.cue_words.map(stemmer);
+    }, [question.cue_words]);
+
+    const { highlightedTranscript, usedCueWords } = useMemo(() => {
+        let highlightedTranscript = answer?.transcript || '';
+        const usedCueWords = new Set();
+
+        if (answer?.transcript) {
+            for (const match of highlightedTranscript.match(/\b\w+\b/g) || []) {
+                const stemmedMatch = stemmer(match.toLowerCase());
+                if (stemmedCueWords.includes(stemmedMatch)) {
+                    highlightedTranscript = highlightedTranscript.replace(
+                        new RegExp(`\\b${match}\\b`, 'gi'),
+                        `<span class="bg-green-200 underline">${match}</span>`,
+                    );
+                    usedCueWords.add(match);
+                }
+            }
+        }
+
+        return { highlightedTranscript, usedCueWords };
+    }, [answer?.transcript, stemmedCueWords]);
 
     const getTimeColor = () => {
         const ratio = (minutes * 60 + seconds) / MAX_RECORDING_TIME;
@@ -135,16 +148,13 @@ export function QuestionWithAnswer({
 
             <div className="flex flex-wrap justify-center gap-2">
                 {question.cue_words.map((word) => {
-                    const isWordUsed = usedCueWords.includes(word);
+                    const isWordUsed = usedCueWords.has(word);
 
                     return (
                         <Badge
                             key={word}
                             variant={isWordUsed ? 'success' : 'secondary'}
-                            className={cn(
-                                isWordUsed && 'bg-green-500 text-white',
-                                'flex items-center gap-1',
-                            )}
+                            className={cn('flex items-center gap-1')}
                         >
                             {word}
                             {isWordUsed && <Check className="h-3 w-3" />}
@@ -153,64 +163,81 @@ export function QuestionWithAnswer({
                 })}
             </div>
 
-            <div className="flex flex-col items-center space-y-4">
-                <Button
-                    onClick={() => {
-                        if (isRecording) {
-                            stopRecording();
-                        } else {
-                            clearBlobUrl();
-                            startRecording();
-                        }
-                    }}
-                    className={`flex h-16 w-16 items-center justify-center rounded-full ${
-                        isRecording
-                            ? 'bg-red-500 hover:bg-red-600'
-                            : 'bg-primary hover:bg-primary/90'
-                    }`}
-                >
-                    {isRecording ? (
-                        <Square className="h-6 w-6 animate-pulse text-white" />
-                    ) : (
-                        <Mic className="h-6 w-6 text-white" />
-                    )}
-                </Button>
-
-                <div
-                    className={`text-center font-mono text-lg ${getTimeColor()}`}
-                >
-                    {minutes}:{seconds.toString().padStart(2, '0')} /{' '}
-                    {secondsToTime(MAX_RECORDING_TIME)}
+            {showAnswerOnly ? (
+                <div className="w-full text-center">
+                    <Button onClick={() => setShowAnswerOnly(false)}>
+                        Attempt
+                    </Button>
                 </div>
-
-                <div className="space-y-1 text-center text-sm text-muted-foreground">
-                    <p>Already recorded? Upload your answer here</p>
-                    <div className="space-x-[1ch]">
-                        <Button size="sm" onClick={handleUploadRecording}>
-                            Choose file
-                        </Button>
+            ) : (
+                <>
+                    <div className="flex flex-col items-center space-y-4">
                         <Button
-                            size="sm"
-                            onClick={postAnswer}
-                            disabled={!answerForm.data.answerAudio}
+                            onClick={() => {
+                                if (isRecording) {
+                                    stopRecording();
+                                } else {
+                                    clearBlobUrl();
+                                    startRecording();
+                                }
+                            }}
+                            className={`flex h-16 w-16 items-center justify-center rounded-full ${
+                                isRecording
+                                    ? 'bg-red-500 hover:bg-red-600'
+                                    : 'bg-primary hover:bg-primary/90'
+                            }`}
                         >
-                            Upload
+                            {isRecording ? (
+                                <Square className="h-6 w-6 animate-pulse text-white" />
+                            ) : (
+                                <Mic className="h-6 w-6 text-white" />
+                            )}
                         </Button>
-                    </div>
-                    <p>{answerForm.data.answerAudio?.name}</p>
-                </div>
-            </div>
 
-            {mediaBlobUrl && (
-                <div className="space-y-2">
-                    <div className="grid grid-cols-[1fr_min-content] grid-rows-[1fr_min-content] items-center gap-x-3 gap-y-1">
-                        <Audio audioUrl={mediaBlobUrl} className="w-full" />
-                        <Button onClick={postAnswer}>Submit</Button>
-                        <FieldErrorMessage>
-                            {answerForm.errors.answerAudio}
-                        </FieldErrorMessage>
+                        <div
+                            className={`text-center font-mono text-lg ${getTimeColor()}`}
+                        >
+                            {minutes}:{seconds.toString().padStart(2, '0')} /{' '}
+                            {secondsToTime(MAX_RECORDING_TIME)}
+                        </div>
+
+                        <div className="space-y-1 text-center text-sm text-muted-foreground">
+                            <p>Already recorded? Upload your answer here</p>
+                            <div className="space-x-[1ch]">
+                                <Button
+                                    size="sm"
+                                    onClick={handleUploadRecording}
+                                >
+                                    Choose file
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    onClick={postAnswer}
+                                    disabled={!answerForm.data.answerAudio}
+                                >
+                                    Upload
+                                </Button>
+                            </div>
+                            <p>{answerForm.data.answerAudio?.name}</p>
+                        </div>
                     </div>
-                </div>
+
+                    {mediaBlobUrl && (
+                        <div className="space-y-2">
+                            <div className="grid grid-cols-[1fr_min-content] grid-rows-[1fr_min-content] items-center gap-x-3 gap-y-1">
+                                <Audio
+                                    audioUrl={mediaBlobUrl}
+                                    className="w-full"
+                                />
+                                <Button onClick={postAnswer}>Submit</Button>;
+                                <FieldErrorMessage>
+                                    {answerForm.errors.answerAudio}
+                                </FieldErrorMessage>
+                                ;
+                            </div>
+                        </div>
+                    )}
+                </>
             )}
 
             {answer && (
@@ -229,9 +256,9 @@ export function QuestionWithAnswer({
                         {answer.transcript ? (
                             <p
                                 className="text-sm text-muted-foreground"
-                                dangerouslySetInnerHTML={highlightCueWords(
-                                    answer.transcript,
-                                )}
+                                dangerouslySetInnerHTML={{
+                                    __html: highlightedTranscript,
+                                }}
                             ></p>
                         ) : (
                             <p className="text-sm text-muted-foreground">

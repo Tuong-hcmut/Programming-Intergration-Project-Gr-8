@@ -35,7 +35,7 @@ declare namespace App.Models {
     transcript?: string
     created_at?: string
     updated_at?: string
-    transcribe_words?: string
+    transcribed_words?: any[]
     user?: App.Models.User
     question?: App.Models.Question
   }
