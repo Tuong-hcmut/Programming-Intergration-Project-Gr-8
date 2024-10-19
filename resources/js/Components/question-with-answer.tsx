@@ -110,22 +110,39 @@ export function QuestionWithAnswer({
     };
 
     const stemmedCueWords = useMemo(() => {
-        return question.cue_words.map(stemmer);
+        return question.cue_words.map((word) => ({
+            word,
+            stemmedWord: stemmer(word),
+        }));
     }, [question.cue_words]);
 
     const { highlightedTranscript, usedCueWords } = useMemo(() => {
-        let highlightedTranscript = answer?.transcript || '';
+        let highlightedTranscript = '';
+        let rest = answer?.transcript || '';
         const usedCueWords = new Set();
 
         if (answer?.transcript) {
-            for (const match of highlightedTranscript.match(/\b\w+\b/g) || []) {
-                const stemmedMatch = stemmer(match.toLowerCase());
-                if (stemmedCueWords.includes(stemmedMatch)) {
-                    highlightedTranscript = highlightedTranscript.replace(
-                        new RegExp(`\\b${match}\\b`, 'gi'),
-                        `<span class="bg-green-200 underline">${match}</span>`,
+            while (rest) {
+                const match = /\b(\w+)\b/.exec(rest);
+                if (!match) break;
+
+                const text = match[1];
+                const stemmedMatch = stemmer(text.toLowerCase());
+                const matchedStemmedCueWord = stemmedCueWords.find(
+                    ({ stemmedWord }) => stemmedWord === stemmedMatch,
+                );
+
+                if (matchedStemmedCueWord) {
+                    highlightedTranscript += rest.substring(0, match.index);
+                    highlightedTranscript += `<span class="bg-green-200 underline">${match[0]}</span>`;
+                    usedCueWords.add(matchedStemmedCueWord.word);
+                    rest = rest.substring(match.index + text.length);
+                } else {
+                    highlightedTranscript += rest.substring(
+                        0,
+                        match.index + text.length,
                     );
-                    usedCueWords.add(match);
+                    rest = rest.substring(match.index + text.length);
                 }
             }
         }
