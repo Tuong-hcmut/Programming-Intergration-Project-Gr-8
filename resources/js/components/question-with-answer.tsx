@@ -94,7 +94,7 @@ export function QuestionWithAnswer({
             input.type = 'file';
             input.accept = 'audio/*';
             input.onchange = async (event) => {
-                let fileInput = event.target as HTMLInputElement;
+                const fileInput = event.target as HTMLInputElement;
                 const file = fileInput.files?.[0];
 
                 if (file) {
@@ -181,7 +181,7 @@ export function QuestionWithAnswer({
                 setRefetchAnswerInterval(null);
             }
         }
-    }, [answer?.transcript]);
+    }, [answer, answer?.transcript, refetchAnswerInterval]);
 
     return (
         <div className="space-y-5">

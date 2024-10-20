@@ -1,0 +1,40 @@
+name: Deploy to hosting
+on: [ push ]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Run composer install
+        run: composer install -n --prefer-dist
+
+      - name: Run npm install
+        run: npm install
+
+      - name: Optimize Laravel
+        run: php artisan optimize
+
+      - name: Build assets
+        run: npm run lint && npm run build
+
+      - name: Deploy to hosting
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: khanhhne.com
+          username: ci
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: verbal-mate/

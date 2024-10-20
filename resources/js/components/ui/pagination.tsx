@@ -131,6 +131,7 @@ const AutoPagination = ({
             <PaginationContent>
                 {[
                     <PaginationPrevious
+                        key="prev-link"
                         href={findPage(currentPage!.page - 1)?.url}
                     />,
                     ...pagination
@@ -152,6 +153,7 @@ const AutoPagination = ({
                         ])
                         .flat(),
                     <PaginationNext
+                        key="next-link"
                         href={findPage(currentPage!.page + 1)?.url}
                     />,
                 ]

@@ -15,4 +15,4 @@ export type Answer = ExtendModel<
         transcribed_words: { word: string; start: number; end: number }[];
     }
 >;
-export type User = ExtendModel<App.Models.User, {}>;
+export type User = ExtendModel<App.Models.User, object>;
