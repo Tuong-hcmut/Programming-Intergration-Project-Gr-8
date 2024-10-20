@@ -1,4 +1,4 @@
-import { QuestionWithAnswer } from '@/Components/question-with-answer';
+import { QuestionWithAnswer } from '@/components/question-with-answer';
 import Authenticated from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 

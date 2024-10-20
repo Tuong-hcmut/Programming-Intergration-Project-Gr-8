@@ -1,8 +1,8 @@
-import { Audio } from '@/Components/ui/audio';
-import { Badge } from '@/Components/ui/badge';
-import { Button } from '@/Components/ui/button';
-import { Card } from '@/Components/ui/card';
-import { FieldErrorMessage } from '@/Components/ui/form';
+import { Audio } from '@/components/ui/audio';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { FieldErrorMessage } from '@/components/ui/form';
 import { useTimer } from '@/lib/useTimer';
 import { cn, secondsToTime } from '@/lib/utils';
 import { Answer, Question } from '@/types/models';

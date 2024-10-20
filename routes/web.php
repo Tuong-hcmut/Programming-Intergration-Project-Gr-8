@@ -4,6 +4,8 @@ use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuestionController;
 use App\Models\Answer;
+use App\Models\Question;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -18,7 +20,15 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+    $questions = Question
+        ::whereDoesntHave('answers', fn($query) => $query->where('user_id', auth()->user()->getAuthIdentifier()))
+        ->groupBy('questions.id')
+        ->paginate(20);
+
+    return Inertia::render('Dashboard', [
+        'questions' => $questions->items(),
+        'pagination' => getPaginationObject($questions),
+    ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {

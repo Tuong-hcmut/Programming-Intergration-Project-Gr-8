@@ -12,3 +12,9 @@ export type PageProps<
         user: User;
     };
 };
+
+export type PaginationProps = {
+    url: string;
+    page: number;
+    is_current: boolean;
+}[];

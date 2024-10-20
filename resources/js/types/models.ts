@@ -3,7 +3,12 @@ type ExtendModel<
     Extension extends Partial<Record<keyof Model, any>>,
 > = Omit<Model, keyof Extension> & Extension;
 
-export type Question = ExtendModel<App.Models.Question, {}>;
+export type Question = ExtendModel<
+    App.Models.Question,
+    {
+        cue_words: string[];
+    }
+>;
 export type Answer = ExtendModel<
     App.Models.Answer,
     {
