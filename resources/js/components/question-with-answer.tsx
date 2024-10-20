@@ -6,9 +6,9 @@ import { FieldErrorMessage } from '@/components/ui/form';
 import { useTimer } from '@/lib/useTimer';
 import { cn, secondsToTime, useQuery } from '@/lib/utils';
 import { Answer, Question } from '@/types/models';
-import { Link, useForm } from '@inertiajs/react';
+import { Link, router, useForm } from '@inertiajs/react';
 import { Check, Mic, Square } from 'lucide-react';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useReactMediaRecorder } from 'react-media-recorder';
 import { stemmer } from 'stemmer';
 
@@ -162,6 +162,26 @@ export function QuestionWithAnswer({
         if (ratio >= 0.66) return 'text-yellow-500';
         return 'text-gray-700';
     };
+
+    const [refetchAnswerInterval, setRefetchAnswerInterval] =
+        useState<NodeJS.Timeout | null>(null);
+    useEffect(() => {
+        if (!answer) return;
+        if (!answer.transcript) {
+            setRefetchAnswerInterval(
+                setInterval(() => {
+                    router.reload({
+                        only: ['answers'],
+                    });
+                }, 1000),
+            );
+        } else {
+            if (refetchAnswerInterval) {
+                clearInterval(refetchAnswerInterval);
+                setRefetchAnswerInterval(null);
+            }
+        }
+    }, [answer?.transcript]);
 
     return (
         <div className="space-y-5">
