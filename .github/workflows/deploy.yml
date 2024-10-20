@@ -11,8 +11,6 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
-          coverage: none
 
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -34,7 +32,7 @@ jobs:
       - name: Deploy to hosting
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: khanhhne.com
-          username: ci
+          server: ftp.khanhhne.com
+          username: ci@khanhhne.com
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: verbal-mate/
