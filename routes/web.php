@@ -5,8 +5,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuestionController;
 use App\Models\Answer;
 use App\Models\Question;
-use Illuminate\Database\Query\JoinClause;
 use Illuminate\Foundation\Application;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -19,10 +19,25 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    $questions = Question
-        ::whereDoesntHave('answers', fn($query) => $query->where('user_id', auth()->user()->getAuthIdentifier()))
-        ->groupBy('questions.id')
+Route::get('/dashboard', function (Request $request) {
+    $type = $request->validate([
+        'type' => 'string|in:unanswered,answered',
+    ])['type'] ?? 'unanswered';
+
+    $where = fn($query) => $query->where('user_id', auth()->user()->getAuthIdentifier());
+
+    $base_query = $type === 'unanswered'
+        ? Question::whereDoesntHave('answers', $where)
+        : Question::whereHas('answers', $where);
+
+    $questions = $base_query
+        ->select('questions.*')
+        ->selectRaw(<<<EOD
+            EXISTS (
+                SELECT 1 FROM answers
+                WHERE answers.question_id = questions.id AND answers.user_id = ?
+            ) as answered
+        EOD, [auth()->user()->getAuthIdentifier()])
         ->paginate(20);
 
     return Inertia::render('Dashboard', [
