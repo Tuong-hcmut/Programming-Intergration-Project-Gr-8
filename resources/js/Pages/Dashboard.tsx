@@ -8,7 +8,7 @@ export default function Dashboard({
     questions,
     pagination,
 }: {
-    questions: (Question & { answers_count: number })[];
+    questions: Question[];
     pagination: PaginationProps;
 }) {
     return (
