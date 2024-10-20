@@ -1,5 +1,5 @@
 name: Deploy to hosting
-on: [ push ]
+on: [ push, workflow_dispatch ]
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -23,6 +23,9 @@ jobs:
       - name: Run npm install
         run: npm install
 
+      - name: Remove cache
+        run: php artisan view:clear
+
       - name: Optimize Laravel
         run: php artisan optimize
 
@@ -36,3 +39,8 @@ jobs:
           username: ci@khanhhne.com
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: verbal-mate/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/vendor/**
