@@ -7,11 +7,9 @@ use App\Http\Requests\UpdateAnswerRequest;
 use App\Jobs\TranscribeAnswer;
 use App\Models\Answer;
 use App\Models\Question;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rules\File;
-use Inertia\Response;
 
 class AnswerController extends Controller
 {
@@ -26,7 +24,7 @@ class AnswerController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Question $question, Request $request)
+    public function create(Question $question, Request $request): RedirectResponse
     {
         $form = $request->validate([
             'answerAudio' => 'required|mimes:wav,mp3,webm,mpeg',
@@ -50,7 +48,7 @@ class AnswerController extends Controller
 
         TranscribeAnswer::dispatch($answer);
 
-        return to_route('answer.show', ['question' => $question, 'answer' => $answer]);
+        return to_route('question.show', ['question' => $question, 'selected_answer' => $answer]);
     }
 
     /**
@@ -64,16 +62,9 @@ class AnswerController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Question $question, Answer $answer): Response
+    public function show(Question $question, Answer $answer)
     {
-        if ($answer->question_id !== $question->id) {
-            abort(404);
-        }
-
-        return inertia()->render('Questions/Show', [
-            'question' => $answer->question,
-            'answer' => $answer->load('user'),
-        ]);
+        //
     }
 
     /**

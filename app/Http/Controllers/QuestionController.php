@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreQuestionRequest;
 use App\Http\Requests\UpdateQuestionRequest;
-use App\Models\Answer;
 use App\Models\Question;
-use Illuminate\Support\Facades\Log;
 
 class QuestionController extends Controller
 {
@@ -41,6 +39,7 @@ class QuestionController extends Controller
     {
         return inertia()->render('Questions/Show', [
             'question' => $question,
+            'answers' => $question->answers()->with('user')->get(),
         ]);
     }
 

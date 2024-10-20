@@ -3,9 +3,7 @@
 namespace App\Policies;
 
 use App\Models\Answer;
-use App\Models\Question;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class AnswerPolicy
 {
@@ -22,7 +20,7 @@ class AnswerPolicy
      */
     public function view(User $user, Answer $answer): bool
     {
-        return true;
+        return false;
     }
 
     /**

@@ -55,11 +55,6 @@ Route::middleware('auth')->group(function () {
         ->name('question.show')
         ->middleware('can:view,question');
 
-    Route::get('/question/{question}/answer/{answer}', [AnswerController::class, 'show'])
-        ->name('answer.show')
-        ->middleware('can:view,question')
-        ->middleware('can:view,answer');
-
     Route::post('/question/{question}/answer', [AnswerController::class, 'create'])
         ->name('answer.create')
         ->middleware('can:view,question')

@@ -4,9 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { FieldErrorMessage } from '@/components/ui/form';
 import { useTimer } from '@/lib/useTimer';
-import { cn, secondsToTime } from '@/lib/utils';
+import { cn, secondsToTime, useQuery } from '@/lib/utils';
 import { Answer, Question } from '@/types/models';
-import { useForm } from '@inertiajs/react';
+import { Link, useForm } from '@inertiajs/react';
 import { Check, Mic, Square } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
 import { useReactMediaRecorder } from 'react-media-recorder';
@@ -14,11 +14,16 @@ import { stemmer } from 'stemmer';
 
 export function QuestionWithAnswer({
     question,
-    answer,
+    answers,
 }: {
     question: Question;
-    answer?: Answer;
+    answers: Answer[];
 }) {
+    const { selected_answer } = useQuery({
+        selected_answer: (val) => Number(val),
+    });
+    const answer = answers.find((a) => a.id === selected_answer);
+
     const answerForm = useForm<{
         answerAudio: File | null;
     }>({
@@ -34,6 +39,7 @@ export function QuestionWithAnswer({
                 onSuccess: () => {
                     clearBlobUrl();
                     answerForm.reset();
+                    setShowAnswerOnly(true);
                 },
                 forceFormData: true,
             },
@@ -158,133 +164,170 @@ export function QuestionWithAnswer({
     };
 
     return (
-        <Card className="mx-auto w-full max-w-3xl space-y-6 p-6">
-            <h2 className="text-balance text-center text-2xl font-bold">
-                {question.text}
-            </h2>
+        <div className="space-y-5">
+            <Card className="mx-auto w-full max-w-3xl space-y-6 p-6">
+                <h2 className="text-balance text-center text-2xl font-bold">
+                    {question.text}
+                </h2>
 
-            <div className="flex flex-wrap justify-center gap-2">
-                {question.cue_words.map((word) => {
-                    const isWordUsed = usedCueWords.has(word);
+                <div className="flex flex-wrap justify-center gap-2">
+                    {question.cue_words.map((word) => {
+                        const isWordUsed = usedCueWords.has(word);
 
-                    return (
-                        <Badge
-                            key={word}
-                            variant={isWordUsed ? 'success' : 'secondary'}
-                            className={cn('flex items-center gap-1')}
-                        >
-                            {word}
-                            {isWordUsed && <Check className="h-3 w-3" />}
-                        </Badge>
-                    );
-                })}
-            </div>
-
-            {showAnswerOnly ? (
-                <div className="w-full text-center">
-                    <Button onClick={() => setShowAnswerOnly(false)}>
-                        Attempt
-                    </Button>
+                        return (
+                            <Badge
+                                key={word}
+                                variant={isWordUsed ? 'success' : 'secondary'}
+                                className={cn('flex items-center gap-1')}
+                            >
+                                {word}
+                                {isWordUsed && <Check className="h-3 w-3" />}
+                            </Badge>
+                        );
+                    })}
                 </div>
-            ) : (
-                <>
-                    <div className="flex flex-col items-center space-y-4">
-                        <Button
-                            onClick={() => {
-                                if (isRecording) {
-                                    stopRecording();
-                                } else {
-                                    clearBlobUrl();
-                                    startRecording();
-                                }
-                            }}
-                            className={`flex h-16 w-16 items-center justify-center rounded-full ${
-                                isRecording
-                                    ? 'bg-red-500 hover:bg-red-600'
-                                    : 'bg-primary hover:bg-primary/90'
-                            }`}
-                        >
-                            {isRecording ? (
-                                <Square className="h-6 w-6 animate-pulse text-white" />
-                            ) : (
-                                <Mic className="h-6 w-6 text-white" />
-                            )}
+
+                {showAnswerOnly ? (
+                    <div className="w-full text-center">
+                        <Button onClick={() => setShowAnswerOnly(false)}>
+                            Attempt
                         </Button>
-
-                        <div
-                            className={`text-center font-mono text-lg ${getTimeColor()}`}
-                        >
-                            {minutes}:{seconds.toString().padStart(2, '0')} /{' '}
-                            {secondsToTime(MAX_RECORDING_TIME)}
-                        </div>
-
-                        <div className="space-y-1 text-center text-sm text-muted-foreground">
-                            <p>Already recorded? Upload your answer here</p>
-                            <div className="space-x-[1ch]">
-                                <Button
-                                    size="sm"
-                                    onClick={handleUploadRecording}
-                                >
-                                    Choose file
-                                </Button>
-                                <Button
-                                    size="sm"
-                                    onClick={postAnswer}
-                                    disabled={!answerForm.data.answerAudio}
-                                >
-                                    Upload
-                                </Button>
-                            </div>
-                            <p>{answerForm.data.answerAudio?.name}</p>
-                        </div>
                     </div>
+                ) : (
+                    <>
+                        <div className="flex flex-col items-center space-y-4">
+                            <Button
+                                onClick={() => {
+                                    if (isRecording) {
+                                        stopRecording();
+                                    } else {
+                                        clearBlobUrl();
+                                        startRecording();
+                                    }
+                                }}
+                                className={`flex h-16 w-16 items-center justify-center rounded-full ${
+                                    isRecording
+                                        ? 'bg-red-500 hover:bg-red-600'
+                                        : 'bg-primary hover:bg-primary/90'
+                                }`}
+                            >
+                                {isRecording ? (
+                                    <Square className="h-6 w-6 animate-pulse text-white" />
+                                ) : (
+                                    <Mic className="h-6 w-6 text-white" />
+                                )}
+                            </Button>
 
-                    {mediaBlobUrl && (
+                            <div
+                                className={`text-center font-mono text-lg ${getTimeColor()}`}
+                            >
+                                {minutes}:{seconds.toString().padStart(2, '0')}{' '}
+                                / {secondsToTime(MAX_RECORDING_TIME)}
+                            </div>
+
+                            <div className="space-y-1 text-center text-sm text-muted-foreground">
+                                <p>Already recorded? Upload your answer here</p>
+                                <div className="space-x-[1ch]">
+                                    <Button
+                                        size="sm"
+                                        onClick={handleUploadRecording}
+                                    >
+                                        Choose file
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        onClick={postAnswer}
+                                        disabled={!answerForm.data.answerAudio}
+                                    >
+                                        Upload
+                                    </Button>
+                                </div>
+                                <p>{answerForm.data.answerAudio?.name}</p>
+                            </div>
+                        </div>
+
+                        {mediaBlobUrl && (
+                            <div className="space-y-2">
+                                <div className="grid grid-cols-[1fr_min-content] grid-rows-[1fr_min-content] items-center gap-x-3 gap-y-1">
+                                    <Audio
+                                        audioUrl={mediaBlobUrl}
+                                        className="w-full"
+                                    />
+                                    <Button onClick={postAnswer}>Submit</Button>
+                                    ;
+                                    <FieldErrorMessage>
+                                        {answerForm.errors.answerAudio}
+                                    </FieldErrorMessage>
+                                    ;
+                                </div>
+                            </div>
+                        )}
+                    </>
+                )}
+
+                {answer && (
+                    <section className="space-y-4">
+                        <div className="flex items-center gap-[1ch]">
+                            <h3 className="text-xl font-semibold">Answer</h3>
+                            <p className="text-sm text-muted-foreground">
+                                by {answer.user?.name}
+                            </p>
+                        </div>
+
+                        <Audio
+                            audioUrl={answer.audio_link}
+                            className="w-full"
+                        />
+
                         <div className="space-y-2">
-                            <div className="grid grid-cols-[1fr_min-content] grid-rows-[1fr_min-content] items-center gap-x-3 gap-y-1">
-                                <Audio
-                                    audioUrl={mediaBlobUrl}
-                                    className="w-full"
-                                />
-                                <Button onClick={postAnswer}>Submit</Button>;
-                                <FieldErrorMessage>
-                                    {answerForm.errors.answerAudio}
-                                </FieldErrorMessage>
-                                ;
-                            </div>
+                            <h4 className="text-lg font-semibold">
+                                Transcript
+                            </h4>
+                            {answer.transcript ? (
+                                <p
+                                    className="text-sm text-muted-foreground"
+                                    dangerouslySetInnerHTML={{
+                                        __html: highlightedTranscript,
+                                    }}
+                                ></p>
+                            ) : (
+                                <p className="text-sm text-muted-foreground">
+                                    Transcription is being processed...
+                                </p>
+                            )}
                         </div>
-                    )}
-                </>
-            )}
+                    </section>
+                )}
+            </Card>
 
-            {answer && (
-                <section className="space-y-4">
-                    <div className="flex items-center gap-[1ch]">
-                        <h3 className="text-xl font-semibold">Answer</h3>
-                        <p className="text-sm text-muted-foreground">
-                            by {answer.user?.name}
-                        </p>
-                    </div>
-
-                    <Audio audioUrl={answer.audio_link} className="w-full" />
+            {answers.length > 0 && (
+                <Card className="mx-auto w-full max-w-3xl space-y-6 p-6">
+                    <h3 className="text-xl font-semibold">Your answers</h3>
 
                     <div className="space-y-2">
-                        <h4 className="text-lg font-semibold">Transcript</h4>
-                        {answer.transcript ? (
-                            <p
-                                className="text-sm text-muted-foreground"
-                                dangerouslySetInnerHTML={{
-                                    __html: highlightedTranscript,
-                                }}
-                            ></p>
-                        ) : (
-                            <p className="text-sm text-muted-foreground">
-                                Transcription is being processed...
-                            </p>
-                        )}
+                        {answers.map((answer) => (
+                            <div
+                                key={answer.id}
+                                className="flex justify-between gap-2"
+                            >
+                                <div className="overflow-hidden text-ellipsis whitespace-nowrap text-sm text-muted-foreground">
+                                    {answer.transcript ||
+                                        'Transcription is being processed...'}
+                                </div>
+                                <Link
+                                    className="text-sm underline"
+                                    href={route('question.show', {
+                                        question: question.id,
+                                        _query: { selected_answer: answer.id },
+                                    })}
+                                >
+                                    View
+                                </Link>
+                            </div>
+                        ))}
                     </div>
-                </section>
+                </Card>
             )}
-        </Card>
+        </div>
     );
 }
