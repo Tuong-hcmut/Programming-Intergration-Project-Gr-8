@@ -37,6 +37,7 @@ class GenerateQuestion implements ShouldQueue
                     You are asked to give a question for english learners to practice speaking.
                     Give a short question, with quite open answer possibility so they could freely answer it.
                     Besides, give a few (3-5) cue words relating to the topic, so that the user must use them to answer the question.
+                    Be super creative, you can choose any topic, from creative to social, science, memory, etc... Be wild
                     Give in format of JSON, for example (DO NOT copy this example): {
                         "question": "Talk about a recent tournament you've attended, and what did you achieve after that?",
                         "cue_words": ["champion", "opponent", "sportsmanship"]

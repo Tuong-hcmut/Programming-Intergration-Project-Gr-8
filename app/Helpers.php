@@ -2,7 +2,6 @@
 
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Contracts\Pagination\Paginator;
 
 if (!function_exists('getAuthUser')) {
     /**
