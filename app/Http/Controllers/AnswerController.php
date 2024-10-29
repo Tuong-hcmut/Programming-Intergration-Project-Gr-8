@@ -27,7 +27,7 @@ class AnswerController extends Controller
     public function create(Question $question, Request $request): RedirectResponse
     {
         $form = $request->validate([
-            'answerAudio' => 'required|mimes:wav,mp3,webm,mpeg',
+            'answerAudio' => 'required|mimes:flac,mp3,mp4,mpeg,mpga,m4a,ogg,wav,webm',
         ]);
 
         // Set filename by <question_id>_<user_id>_<YYYYMMDD>_<HHMMSS>.<extension>
