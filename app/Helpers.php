@@ -21,14 +21,14 @@ function getPaginationObject(LengthAwarePaginator $paginator): array
     $trailing_pages = 2;
     $on_each_side = 2;
 
-    $pages = array_filter(
+    $pages = array_values(array_filter(
         array_unique([
             ...range(1, $leading_pages),
             ...range($current_page - $on_each_side, $current_page + $on_each_side),
             ...range($paginator->lastPage() - $trailing_pages + 1, $paginator->lastPage()),
         ]),
         fn(int $item) => $item > 0 && $item <= $paginator->lastPage()
-    );
+    ));
 
     return array_map(
         fn(int $page) => [
