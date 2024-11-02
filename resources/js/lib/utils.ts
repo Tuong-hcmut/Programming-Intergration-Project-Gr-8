@@ -26,3 +26,6 @@ export const useQuery = <Params extends Record<string, any>>(props: {
         toPairs(props).map(([key, fn]) => [key, fn(params.get(String(key)))]),
     );
 };
+
+export const sleep = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));

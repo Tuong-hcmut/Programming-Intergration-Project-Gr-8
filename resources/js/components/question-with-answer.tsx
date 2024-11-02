@@ -163,25 +163,23 @@ export function QuestionWithAnswer({
         return 'text-gray-700';
     };
 
-    const [refetchAnswerInterval, setRefetchAnswerInterval] =
-        useState<NodeJS.Timeout | null>(null);
+    const reloadAnswerPromise = () =>
+        new Promise<void>((resolve) => {
+            router.reload({
+                only: ['answers'],
+                onSuccess: () => resolve(),
+            });
+        });
+
     useEffect(() => {
-        if (!answer) return;
-        if (!answer.transcript) {
-            setRefetchAnswerInterval(
-                setInterval(() => {
-                    router.reload({
-                        only: ['answers'],
-                    });
-                }, 1000),
-            );
-        } else {
-            if (refetchAnswerInterval) {
-                clearInterval(refetchAnswerInterval);
-                setRefetchAnswerInterval(null);
+        if (answer?.transcript) return;
+
+        (async () => {
+            while (!answer?.transcript) {
+                await reloadAnswerPromise();
             }
-        }
-    }, [answer, answer?.transcript, refetchAnswerInterval]);
+        })();
+    }, [answer]);
 
     return (
         <div className="space-y-5">
@@ -274,11 +272,9 @@ export function QuestionWithAnswer({
                                         className="w-full"
                                     />
                                     <Button onClick={postAnswer}>Submit</Button>
-                                    ;
                                     <FieldErrorMessage>
                                         {answerForm.errors.answerAudio}
                                     </FieldErrorMessage>
-                                    ;
                                 </div>
                             </div>
                         )}
