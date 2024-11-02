@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { FieldErrorMessage } from '@/components/ui/form';
 import { useTimer } from '@/lib/useTimer';
-import { cn, secondsToTime, useQuery } from '@/lib/utils';
+import { cn, secondsToTime, sleep, useQuery } from '@/lib/utils';
 import { Answer, Question } from '@/types/models';
 import { Link, router, useForm } from '@inertiajs/react';
 import { Check, Mic, Square } from 'lucide-react';
@@ -177,6 +177,7 @@ export function QuestionWithAnswer({
         (async () => {
             while (!answer?.transcript) {
                 await reloadAnswerPromise();
+                await sleep(1000);
             }
         })();
     }, [answer]);
