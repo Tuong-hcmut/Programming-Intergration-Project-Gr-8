@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { FieldErrorMessage } from '@/components/ui/form';
 import { useTimer } from '@/lib/useTimer';
-import { cn, secondsToTime, sleep, useQuery } from '@/lib/utils';
+import { cn, secondsToTime, useQuery, useWaitForData } from '@/lib/utils';
 import { Answer, Question } from '@/types/models';
 import { Link, router, useForm } from '@inertiajs/react';
 import { Check, Mic, Square } from 'lucide-react';
@@ -12,13 +12,12 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useReactMediaRecorder } from 'react-media-recorder';
 import { stemmer } from 'stemmer';
 
-export function QuestionWithAnswer({
-    question,
-    answers,
-}: {
+type ComponentProps = {
     question: Question;
     answers: Answer[];
-}) {
+};
+
+export function QuestionWithAnswer({ question, answers }: ComponentProps) {
     const { selected_answer } = useQuery({
         selected_answer: (val) => Number(val),
     });
@@ -163,24 +162,22 @@ export function QuestionWithAnswer({
         return 'text-gray-700';
     };
 
-    const reloadAnswerPromise = () =>
-        new Promise<void>((resolve) => {
-            router.reload({
-                only: ['answers'],
-                onSuccess: () => resolve(),
-            });
-        });
+    const waitForAnswer = useWaitForData<ComponentProps>(
+        (data) =>
+            data.answers.find((a) => a.id === selected_answer)?.transcript,
+    );
 
     useEffect(() => {
-        if (answer?.transcript) return;
+        if (!answer || answer.transcript) return;
 
         (async () => {
-            while (!answer?.transcript) {
-                await reloadAnswerPromise();
-                await sleep(1000);
-            }
+            await waitForAnswer();
+            console.log("Transcript is ready, let's reload the page");
+            router.reload({
+                only: ['answers'],
+            });
         })();
-    }, [answer]);
+    }, [answer, answer?.transcript, waitForAnswer]);
 
     return (
         <div className="space-y-5">
