@@ -17,12 +17,6 @@ const Ziggy = {
             parameters: ['question'],
             bindings: { question: 'id' },
         },
-        'answer.show': {
-            uri: 'question/{question}/answer/{answer}',
-            methods: ['GET', 'HEAD'],
-            parameters: ['question', 'answer'],
-            bindings: { answer: 'id' },
-        },
         'answer.create': {
             uri: 'question/{question}/answer',
             methods: ['POST'],

@@ -37,7 +37,7 @@ export function QuestionList({
                             </p>
                             {question.answered ? (
                                 <CheckIcon
-                                    className="text-success absolute bottom-1 right-1"
+                                    className="absolute bottom-1 right-1 text-success"
                                     width={20}
                                     height={20}
                                 />

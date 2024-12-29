@@ -2,9 +2,11 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "vite --host $(ipconfig getifaddr en0)",
         "build": "tsc && vite build",
-        "lint": "eslint resources/js --ext .js,.jsx,.ts,.tsx --ignore-path .gitignore --fix"
+        "dev": "vite",
+        "dev-lan": "vite --host $(ipconfig getifaddr en0)",
+        "lint": "eslint resources/js --ext .js,.jsx,.ts,.tsx --ignore-path .gitignore --fix",
+        "pretty": "php artisan ziggy:generate --types && npm run lint"
     },
     "devDependencies": {
         "@headlessui/react": "^2.0.0",

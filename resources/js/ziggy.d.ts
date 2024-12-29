@@ -13,17 +13,6 @@ declare module 'ziggy-js' {
                 binding: 'id';
             },
         ];
-        'answer.show': [
-            {
-                name: 'question';
-                required: true;
-            },
-            {
-                name: 'answer';
-                required: true;
-                binding: 'id';
-            },
-        ];
         'answer.create': [
             {
                 name: 'question';
