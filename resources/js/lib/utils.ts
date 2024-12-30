@@ -2,7 +2,7 @@ import { PageProps } from '@/types';
 import { usePage } from '@inertiajs/react';
 import { type ClassValue, clsx } from 'clsx';
 import { fromPairs, toPairs } from 'ramda';
-import { useCallback } from 'react';
+import { FormEventHandler, useCallback } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
@@ -59,3 +59,9 @@ export const useWaitForData = <T extends Record<string, unknown>>(
         }
     }, [delay, version, selector]);
 };
+
+export const preventDefaultFormSubmit =
+    (handler: FormEventHandler) => (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        handler(e);
+    };

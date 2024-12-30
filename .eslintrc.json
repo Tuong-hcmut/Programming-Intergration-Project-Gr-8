@@ -21,7 +21,12 @@
         "react/prop-types": "off",
         "react/no-unescaped-entities": "off",
         "@typescript-eslint/no-explicit-any": "off",
-        "eslint-comments/disable-enable-pair": "off"
+        "eslint-comments/disable-enable-pair": "off",
+        "react/jsx-curly-brace-presence": [
+            "warn",
+            "never"
+        ],
+        "prettier/prettier": "warn"
     },
     "settings": {
         "react": {

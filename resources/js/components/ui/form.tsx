@@ -10,8 +10,22 @@ import {
     useFormContext,
 } from 'react-hook-form';
 
+import { Input, InputProps } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+
+import { Textarea } from '@/components/ui/textarea';
+
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+// @ts-expect-error TS2307: Cannot find module @inertiajs/react/types/useForm or its corresponding type declarations.
+import { InertiaFormProps } from '@inertiajs/react/types/useForm';
+import { SelectProps } from '@radix-ui/react-select';
 
 const Form = FormProvider;
 
@@ -168,7 +182,7 @@ const FieldErrorMessage = React.forwardRef<
         <p
             ref={ref}
             className={cn(
-                'text-[0.8rem] font-medium text-destructive',
+                'text-[0.8rem] font-medium text-destructive first-letter:uppercase',
                 className,
             )}
             {...props}
@@ -179,6 +193,123 @@ const FieldErrorMessage = React.forwardRef<
 });
 FieldErrorMessage.displayName = 'FieldErrorMessage';
 
+const InertiaFormField = <
+    Form extends InertiaFormProps<FData>,
+    FData extends Form['data'],
+    FieldName extends keyof FData & string,
+    FieldType extends FData[FieldName],
+>({
+    className,
+    form,
+    fieldName,
+    displayName,
+    type = 'text',
+    toDisplay = (value) => String(value),
+    toValue = (display) => display as FieldType,
+    optional = false,
+    inputProps = {},
+    ...props
+}: React.HTMLAttributes<HTMLDivElement> & {
+    form: Form;
+    fieldName: FieldName;
+    displayName: string;
+    type?: InputProps['type'] | 'textarea';
+    toDisplay?: (value: FieldType) => string;
+    toValue?: (display: string) => FieldType;
+    optional?: boolean;
+    inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
+}) => {
+    return (
+        <div className={cn('flex flex-col space-y-1.5', className)} {...props}>
+            <Label
+                htmlFor={`form-field-${fieldName}`}
+                className="inline-block w-full"
+            >
+                {displayName}
+                {!optional && <span className="text-destructive">{' *'}</span>}
+            </Label>
+            <div className="space-y-0.5">
+                {type !== 'textarea' ? (
+                    <Input
+                        id={`form-field-${fieldName}`}
+                        type={type}
+                        defaultValue={toDisplay(form.data[fieldName])}
+                        onChange={(e) =>
+                            form.setData(fieldName, toValue(e.target.value))
+                        }
+                        required={!optional}
+                        {...inputProps}
+                    />
+                ) : (
+                    <Textarea
+                        id={`form-field-${fieldName}`}
+                        defaultValue={toDisplay(form.data[fieldName])}
+                        onChange={(e) =>
+                            form.setData(fieldName, toValue(e.target.value))
+                        }
+                        required={!optional}
+                        rows={5}
+                    />
+                )}
+                <FieldErrorMessage>{form.errors[fieldName]}</FieldErrorMessage>
+            </div>
+        </div>
+    );
+};
+InertiaFormField.displayName = 'InertialFormField';
+
+const InertialFormSelectField = <
+    Form extends InertiaFormProps<FData>,
+    FData extends Form['data'],
+    FieldName extends keyof FData & string,
+>({
+    className,
+    form,
+    fieldName,
+    displayName,
+    options,
+    optional = false,
+    inputProps = {},
+    ...props
+}: React.HTMLAttributes<HTMLDivElement> & {
+    form: Form;
+    fieldName: FieldName;
+    displayName: string;
+    options: { label: string; value: FData[FieldName] }[];
+    optional?: boolean;
+    inputProps?: SelectProps;
+}) => {
+    return (
+        <div className={cn('flex flex-col space-y-1.5', className)} {...props}>
+            <Label htmlFor={`form-field-${fieldName}`}>
+                {displayName}
+                {!optional && <span className="text-destructive">{' *'}</span>}
+            </Label>
+            <div className="space-y-0.5">
+                <Select
+                    onValueChange={(value) => form.setData(fieldName, value)}
+                    required={!optional}
+                    defaultValue={form.data[fieldName]}
+                    {...inputProps}
+                >
+                    <SelectTrigger>
+                        <SelectValue placeholder={displayName} />
+                    </SelectTrigger>
+                    <SelectContent id={`form-field-${fieldName}`}>
+                        {options.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <FieldErrorMessage>{form.errors[fieldName]}</FieldErrorMessage>
+            </div>
+        </div>
+    );
+};
+InertialFormSelectField.displayName = 'InertialFormSelectField';
+
 export {
     FieldErrorMessage,
     Form,
@@ -188,5 +319,7 @@ export {
     FormItem,
     FormLabel,
     FormMessage,
+    InertiaFormField,
+    InertialFormSelectField,
     useFormField,
 };

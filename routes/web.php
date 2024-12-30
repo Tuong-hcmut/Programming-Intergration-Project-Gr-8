@@ -5,18 +5,18 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuestionController;
 use App\Models\Answer;
 use App\Models\Question;
-use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
+    $user = getAuthUser();
+
+    if (!is_null($user)) {
+        return redirect()->route('dashboard');
+    }
+
+    return inertia()->render('Welcome');
 });
 
 Route::get('/dashboard', function (Request $request) {
