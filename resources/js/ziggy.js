@@ -7,6 +7,7 @@ const Ziggy = {
             uri: 'sanctum/csrf-cookie',
             methods: ['GET', 'HEAD'],
         },
+        dashboard: { uri: 'dashboard', methods: ['GET', 'HEAD'] },
         questions: { uri: 'questions', methods: ['GET', 'HEAD'] },
         'profile.edit': { uri: 'profile', methods: ['GET', 'HEAD'] },
         'profile.update': { uri: 'profile', methods: ['PATCH'] },

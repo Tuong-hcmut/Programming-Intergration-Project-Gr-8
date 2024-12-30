@@ -18,6 +18,10 @@ Route::get('/', function () {
     return inertia()->render('Welcome');
 });
 
+Route::get('/dashboard', function () {
+    return inertia()->render('Dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
 Route::get('/questions', function (Request $request) {
     $type = $request->validate([
         'type' => 'string|in:unanswered,answered',

@@ -1,20 +1,7 @@
-import { QuestionList } from '@/components/question-list';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { PaginationProps } from '@/types';
-import { Question } from '@/types/models';
-import { Head, Link } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 
-export default function Dashboard({
-    questions,
-    pagination,
-}: {
-    questions: Question[];
-    pagination: PaginationProps;
-}) {
-    const params = new URLSearchParams(window.location.search);
-    const type = params.get('type');
-    const showingUnanswered = type !== 'answered';
-
+export default function Dashboard() {
     return (
         <AuthenticatedLayout
             header={
@@ -24,30 +11,6 @@ export default function Dashboard({
             }
         >
             <Head title="Dashboard" />
-
-            <div className="flex flex-col gap-5 rounded-lg bg-background p-5 md:p-10">
-                <QuestionList
-                    title={
-                        showingUnanswered
-                            ? 'New Questions'
-                            : 'Attempted Questions'
-                    }
-                    questions={questions}
-                    pagination={pagination}
-                />
-                {showingUnanswered ? (
-                    <Link
-                        href={route('dashboard', { type: 'answered' })}
-                        className="underline"
-                    >
-                        View attempted questions
-                    </Link>
-                ) : (
-                    <Link href={route('dashboard')} className="underline">
-                        View new questions
-                    </Link>
-                )}
-            </div>
         </AuthenticatedLayout>
     );
 }
