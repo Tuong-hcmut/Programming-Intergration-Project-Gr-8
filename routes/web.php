@@ -7,7 +7,6 @@ use App\Models\Answer;
 use App\Models\Question;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::get('/', function () {
     $user = getAuthUser();
@@ -19,7 +18,7 @@ Route::get('/', function () {
     return inertia()->render('Welcome');
 });
 
-Route::get('/dashboard', function (Request $request) {
+Route::get('/questions', function (Request $request) {
     $type = $request->validate([
         'type' => 'string|in:unanswered,answered',
     ])['type'] ?? 'unanswered';
@@ -40,11 +39,11 @@ Route::get('/dashboard', function (Request $request) {
         EOD, [auth()->user()->getAuthIdentifier()])
         ->paginate(20);
 
-    return Inertia::render('Dashboard', [
+    return inertia()->render('QuestionIndex', [
         'questions' => $questions->items(),
         'pagination' => getPaginationObject($questions),
     ]);
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified'])->name('questions');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
