@@ -20,22 +20,21 @@ use Illuminate\Support\Carbon;
  * @property string|null $transcript
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @method static AnswerFactory factory($count = null, $state = [])
- * @method static Builder|Answer newModelQuery()
- * @method static Builder|Answer newQuery()
- * @method static Builder|Answer query()
- * @method static Builder|Answer whereAudioLink($value)
- * @method static Builder|Answer whereCreatedAt($value)
- * @method static Builder|Answer whereId($value)
- * @method static Builder|Answer whereQuestionId($value)
- * @method static Builder|Answer whereTranscript($value)
- * @method static Builder|Answer whereUpdatedAt($value)
- * @method static Builder|Answer whereUserId($value)
+ * @property array<array-key, mixed>|null $transcribed_words
  * @property-read Question $question
  * @property-read User $user
- * @method static Builder|Answer whereTranscribeWords($value)
- * @property string|null $transcribed_words
- * @method static Builder|Answer whereTranscribedWords($value)
+ * @method static AnswerFactory factory($count = null, $state = [])
+ * @method static Builder<static>|Answer newModelQuery()
+ * @method static Builder<static>|Answer newQuery()
+ * @method static Builder<static>|Answer query()
+ * @method static Builder<static>|Answer whereAudioLink($value)
+ * @method static Builder<static>|Answer whereCreatedAt($value)
+ * @method static Builder<static>|Answer whereId($value)
+ * @method static Builder<static>|Answer whereQuestionId($value)
+ * @method static Builder<static>|Answer whereTranscribedWords($value)
+ * @method static Builder<static>|Answer whereTranscript($value)
+ * @method static Builder<static>|Answer whereUpdatedAt($value)
+ * @method static Builder<static>|Answer whereUserId($value)
  * @mixin Eloquent
  */
 class Answer extends Model

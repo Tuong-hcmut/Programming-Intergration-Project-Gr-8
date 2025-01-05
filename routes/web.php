@@ -3,6 +3,7 @@
 use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\QuestionLibraryController;
 use App\Models\Answer;
 use App\Models\Question;
 use Illuminate\Http\Request;
@@ -54,6 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    Route::post('/question', [QuestionController::class, 'store'])->name('question.store');
     Route::get('/question/{question}', [QuestionController::class, 'show'])
         ->name('question.show')
         ->middleware('can:view,question');
@@ -62,6 +64,14 @@ Route::middleware('auth')->group(function () {
         ->name('answer.create')
         ->middleware('can:view,question')
         ->can('create', Answer::class);
+});
+
+Route::prefix('question-library')->group(function () {
+    Route::get('/', [QuestionLibraryController::class, 'index'])->name('question-library');
+    Route::get('/{questionLibrary:uuid}', [QuestionLibraryController::class, 'edit'])->name('question-library.edit');
+    Route::post('/', [QuestionLibraryController::class, 'store'])->name('question-library.store');
+    Route::patch('/{questionLibrary:uuid}', [QuestionLibraryController::class, 'update'])
+        ->name('question-library.update');
 });
 
 require __DIR__ . '/auth.php';

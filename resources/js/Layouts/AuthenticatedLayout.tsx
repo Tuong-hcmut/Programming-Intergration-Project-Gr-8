@@ -2,20 +2,24 @@ import ApplicationLogo from '@/components/ApplicationLogo';
 import Dropdown from '@/components/Dropdown';
 import NavLink from '@/components/NavLink';
 import ResponsiveNavLink from '@/components/ResponsiveNavLink';
-import { Link, usePage } from '@inertiajs/react';
-import { PropsWithChildren, ReactNode, useState } from 'react';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { PropsWithChildren, useState } from 'react';
 
 export default function Authenticated({
     header,
     children,
-}: PropsWithChildren<{ header?: ReactNode }>) {
+}: PropsWithChildren<{ header?: string }>) {
     const user = usePage().props.auth.user;
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
 
+    const isTeacher = !!user.is_teacher;
+
     return (
         <div className="min-h-screen bg-gray-100">
+            {header && <Head title={header} />}
+
             <nav className="border-b border-gray-100 bg-white">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 justify-between">
@@ -33,6 +37,16 @@ export default function Authenticated({
                                 >
                                     Dashboard
                                 </NavLink>
+                                {isTeacher && (
+                                    <NavLink
+                                        href={route('question-library')}
+                                        active={route().current(
+                                            'question-library',
+                                        )}
+                                    >
+                                        Question library
+                                    </NavLink>
+                                )}
                             </div>
                         </div>
 
@@ -137,6 +151,14 @@ export default function Authenticated({
                         >
                             Dashboard
                         </ResponsiveNavLink>
+                        {isTeacher && (
+                            <ResponsiveNavLink
+                                href={route('question-library')}
+                                active={route().current('question-library')}
+                            >
+                                Question library
+                            </ResponsiveNavLink>
+                        )}
                     </div>
 
                     <div className="border-t border-gray-200 pb-1 pt-4">

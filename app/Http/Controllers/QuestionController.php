@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreQuestionRequest;
 use App\Http\Requests\UpdateQuestionRequest;
 use App\Models\Question;
+use Illuminate\Support\Facades\Gate;
 
 class QuestionController extends Controller
 {
@@ -29,7 +30,11 @@ class QuestionController extends Controller
      */
     public function store(StoreQuestionRequest $request)
     {
-        //
+        Gate::authorize('create', Question::class);
+
+        Question::create($request->validated());
+
+        return redirect()->back();
     }
 
     /**

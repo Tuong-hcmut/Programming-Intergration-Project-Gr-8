@@ -18,11 +18,32 @@ const Ziggy = {
             parameters: ['question'],
             bindings: { question: 'id' },
         },
+        'question.store': { uri: 'question', methods: ['POST'] },
         'answer.create': {
             uri: 'question/{question}/answer',
             methods: ['POST'],
             parameters: ['question'],
             bindings: { question: 'id' },
+        },
+        'question-library': {
+            uri: 'question-library',
+            methods: ['GET', 'HEAD'],
+        },
+        'question-library.edit': {
+            uri: 'question-library/{questionLibrary}',
+            methods: ['GET', 'HEAD'],
+            parameters: ['questionLibrary'],
+            bindings: { questionLibrary: 'uuid' },
+        },
+        'question-library.store': {
+            uri: 'question-library',
+            methods: ['POST'],
+        },
+        'question-library.update': {
+            uri: 'question-library/{questionLibrary}',
+            methods: ['PATCH'],
+            parameters: ['questionLibrary'],
+            bindings: { questionLibrary: 'uuid' },
         },
         register: { uri: 'register', methods: ['GET', 'HEAD'] },
         login: { uri: 'login', methods: ['GET', 'HEAD'] },

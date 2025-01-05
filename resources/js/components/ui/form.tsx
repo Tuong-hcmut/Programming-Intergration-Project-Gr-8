@@ -141,19 +141,28 @@ FormControl.displayName = 'FormControl';
 const FormDescription = React.forwardRef<
     HTMLParagraphElement,
     React.HTMLAttributes<HTMLParagraphElement>
->(({ className, ...props }, ref) => {
+>(({ ...props }, ref) => {
     const { formDescriptionId } = useFormField();
 
+    return <FieldDescription ref={ref} id={formDescriptionId} {...props} />;
+});
+FormDescription.displayName = 'FormDescription';
+
+const FieldDescription = React.forwardRef<
+    HTMLParagraphElement,
+    React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, children, ...props }, ref) => {
     return (
         <p
             ref={ref}
-            id={formDescriptionId}
             className={cn('text-[0.8rem] text-muted-foreground', className)}
             {...props}
-        />
+        >
+            {children}
+        </p>
     );
 });
-FormDescription.displayName = 'FormDescription';
+FieldDescription.displayName = 'FieldDescription';
 
 const FormMessage = React.forwardRef<
     HTMLParagraphElement,
@@ -311,6 +320,7 @@ const InertialFormSelectField = <
 InertialFormSelectField.displayName = 'InertialFormSelectField';
 
 export {
+    FieldDescription,
     FieldErrorMessage,
     Form,
     FormControl,

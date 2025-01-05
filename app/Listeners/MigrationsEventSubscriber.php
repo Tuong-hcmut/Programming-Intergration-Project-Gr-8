@@ -13,7 +13,10 @@ class MigrationsEventSubscriber
      */
     public function afterMigration(MigrationsEnded $event): void
     {
-        Artisan::call('ide-helper:models', ['-W' => true]);
+        if (app()->environment('local')) {
+            Artisan::call('ide-helper:models', ['--write' => true, '--reset' => true]);
+            Artisan::call('typescriptable');
+        }
     }
 
     /**

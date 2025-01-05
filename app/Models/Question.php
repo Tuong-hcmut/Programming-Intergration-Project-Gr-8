@@ -2,36 +2,45 @@
 
 namespace App\Models;
 
+use Database\Factories\QuestionFactory;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $text
- * @property array $cue_words
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Database\Factories\QuestionFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder|Question newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Question newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Question query()
- * @method static \Illuminate\Database\Eloquent\Builder|Question whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Question whereCueWords($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Question whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Question whereText($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Question whereUpdatedAt($value)
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Answer> $answers
+ * @property array<array-key, mixed> $cue_words
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property int|null $question_library_id
+ * @property-read Collection<int, Answer> $answers
  * @property-read int|null $answers_count
- * @mixin \Eloquent
+ * @property-read QuestionLibrary|null $questionLibrary
+ * @method static QuestionFactory factory($count = null, $state = [])
+ * @method static Builder<static>|Question newModelQuery()
+ * @method static Builder<static>|Question newQuery()
+ * @method static Builder<static>|Question query()
+ * @method static Builder<static>|Question whereCreatedAt($value)
+ * @method static Builder<static>|Question whereCueWords($value)
+ * @method static Builder<static>|Question whereId($value)
+ * @method static Builder<static>|Question whereQuestionLibraryId($value)
+ * @method static Builder<static>|Question whereText($value)
+ * @method static Builder<static>|Question whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class Question extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['text', 'cue_words'];
+    protected $fillable = ['question_library_id', 'text', 'cue_words'];
     protected $casts = [
         'cue_words' => 'array'
     ];
@@ -39,5 +48,10 @@ class Question extends Model
     public function answers(): HasMany
     {
         return $this->hasMany(Answer::class);
+    }
+
+    public function questionLibrary(): BelongsTo
+    {
+        return $this->belongsTo(QuestionLibrary::class);
     }
 }

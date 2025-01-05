@@ -14,11 +14,28 @@ declare module 'ziggy-js' {
                 binding: 'id';
             },
         ];
+        'question.store': [];
         'answer.create': [
             {
                 name: 'question';
                 required: true;
                 binding: 'id';
+            },
+        ];
+        'question-library': [];
+        'question-library.edit': [
+            {
+                name: 'questionLibrary';
+                required: true;
+                binding: 'uuid';
+            },
+        ];
+        'question-library.store': [];
+        'question-library.update': [
+            {
+                name: 'questionLibrary';
+                required: true;
+                binding: 'uuid';
             },
         ];
         register: [];
