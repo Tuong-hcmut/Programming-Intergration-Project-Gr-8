@@ -53,6 +53,14 @@ Route::get('/questions', function (Request $request) {
 })->middleware(['auth', 'verified'])->name('questions');
 
 Route::middleware('auth')->group(function () {
+    Route::post('switch-role', function () {
+        $user = getAuthUser();
+        $user->is_teacher = !$user->is_teacher;
+        $user->save();
+
+        return redirect()->back();
+    })->name('switch-role');
+
     Route::prefix('profile')->group(function () {
         Route::get('/', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/', [ProfileController::class, 'update'])->name('profile.update');

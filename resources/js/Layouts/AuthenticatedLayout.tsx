@@ -2,8 +2,10 @@ import ApplicationLogo from '@/components/ApplicationLogo';
 import Dropdown from '@/components/Dropdown';
 import NavLink from '@/components/NavLink';
 import ResponsiveNavLink from '@/components/ResponsiveNavLink';
+import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { GraduationCapIcon, PresentationIcon } from 'lucide-react';
 import { PropsWithChildren, useState } from 'react';
 
 export default function Authenticated({
@@ -50,6 +52,20 @@ export default function Authenticated({
                                 )}
                             </div>
                         </div>
+
+                        <Button
+                            onClick={() => router.post(route('switch-role'))}
+                            className="my-auto ml-auto"
+                        >
+                            {isTeacher
+                                ? 'Switch to Student'
+                                : 'Switch to Teacher'}
+                            {isTeacher ? (
+                                <GraduationCapIcon />
+                            ) : (
+                                <PresentationIcon />
+                            )}
+                        </Button>
 
                         <div className="hidden sm:ms-6 sm:flex sm:items-center">
                             <div className="relative ms-3">

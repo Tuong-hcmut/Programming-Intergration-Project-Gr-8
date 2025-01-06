@@ -15,6 +15,10 @@ class QuestionLibraryController extends Controller
      */
     public function index()
     {
+        if (!getAuthUser()->is_teacher) {
+            return redirect()->route('dashboard');
+        }
+
         return inertia()->render('QuestionLibrary/Index', [
             'question_libraries' => QuestionLibrary
                 ::where('owner_id', auth()->id())
