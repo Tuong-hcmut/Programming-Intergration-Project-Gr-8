@@ -12,13 +12,36 @@ const Ziggy = {
         'profile.edit': { uri: 'profile', methods: ['GET', 'HEAD'] },
         'profile.update': { uri: 'profile', methods: ['PATCH'] },
         'profile.destroy': { uri: 'profile', methods: ['DELETE'] },
+        'question.store': { uri: 'question', methods: ['POST'] },
         'question.show': {
             uri: 'question/{question}',
             methods: ['GET', 'HEAD'],
             parameters: ['question'],
             bindings: { question: 'id' },
         },
-        'question.store': { uri: 'question', methods: ['POST'] },
+        'question.update': {
+            uri: 'question/{question}',
+            methods: ['PATCH'],
+            parameters: ['question'],
+            bindings: { question: 'id' },
+        },
+        'question.delete': {
+            uri: 'question/{question}',
+            methods: ['DELETE'],
+            parameters: ['question'],
+            bindings: { question: 'id' },
+        },
+        'answer.index': {
+            uri: 'question/{question}/answer',
+            methods: ['GET', 'HEAD'],
+            parameters: ['question'],
+        },
+        'answer.show': {
+            uri: 'question/{question}/answer/{answer}',
+            methods: ['GET', 'HEAD'],
+            parameters: ['question', 'answer'],
+            bindings: { question: 'id', answer: 'id' },
+        },
         'answer.create': {
             uri: 'question/{question}/answer',
             methods: ['POST'],

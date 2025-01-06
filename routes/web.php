@@ -4,7 +4,6 @@ use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\QuestionLibraryController;
-use App\Models\Answer;
 use App\Models\Question;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -55,23 +54,31 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::post('/question', [QuestionController::class, 'store'])->name('question.store');
-    Route::get('/question/{question}', [QuestionController::class, 'show'])
-        ->name('question.show')
-        ->middleware('can:view,question');
+    Route::prefix('question')->group(function () {
+        Route::post('/', [QuestionController::class, 'store'])->name('question.store');
+        Route::get('/{question}', [QuestionController::class, 'show'])
+            ->name('question.show');
+        Route::patch('/{question}', [QuestionController::class, 'update'])
+            ->name('question.update');
+        Route::delete('/{question}', [QuestionController::class, 'destroy'])
+            ->name('question.delete');
+    });
 
+    Route::get('/question/{question}/answer', [AnswerController::class, 'index'])
+        ->name('answer.index');
+    Route::get('/question/{question}/answer/{answer}', [AnswerController::class, 'show'])
+        ->name('answer.show');
     Route::post('/question/{question}/answer', [AnswerController::class, 'create'])
-        ->name('answer.create')
-        ->middleware('can:view,question')
-        ->can('create', Answer::class);
-});
+        ->name('answer.create');
 
-Route::prefix('question-library')->group(function () {
-    Route::get('/', [QuestionLibraryController::class, 'index'])->name('question-library');
-    Route::get('/{questionLibrary:uuid}', [QuestionLibraryController::class, 'edit'])->name('question-library.edit');
-    Route::post('/', [QuestionLibraryController::class, 'store'])->name('question-library.store');
-    Route::patch('/{questionLibrary:uuid}', [QuestionLibraryController::class, 'update'])
-        ->name('question-library.update');
+    Route::prefix('question-library')->group(function () {
+        Route::get('/', [QuestionLibraryController::class, 'index'])->name('question-library');
+        Route::get('/{questionLibrary:uuid}', [QuestionLibraryController::class, 'edit'])
+            ->name('question-library.edit');
+        Route::post('/', [QuestionLibraryController::class, 'store'])->name('question-library.store');
+        Route::patch('/{questionLibrary:uuid}', [QuestionLibraryController::class, 'update'])
+            ->name('question-library.update');
+    });
 });
 
 require __DIR__ . '/auth.php';

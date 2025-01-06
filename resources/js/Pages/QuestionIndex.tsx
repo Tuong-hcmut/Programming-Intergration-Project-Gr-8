@@ -2,7 +2,7 @@ import { QuestionList } from '@/components/question-list';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { PaginationProps } from '@/types';
 import { Question } from '@/types/models';
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 
 export default function QuestionIndex({
     questions,
@@ -16,15 +16,7 @@ export default function QuestionIndex({
     const showingUnanswered = type !== 'answered';
 
     return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Dashboard
-                </h2>
-            }
-        >
-            <Head title="Dashboard" />
-
+        <AuthenticatedLayout header="Dashboard">
             <div className="flex flex-col gap-5 rounded-lg bg-background p-5 md:p-10">
                 <QuestionList
                     title={

@@ -70,23 +70,22 @@ export default function Index({
         <Authenticated header="Question library">
             <div className="max-w-constrained mx-auto grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-2">
                 {question_libraries.map((library) => (
-                    <Link
-                        key={library.uuid}
-                        href={route('question-library.edit', {
-                            id: library.uuid,
-                        })}
-                    >
-                        <Card>
-                            <CardContent>
-                                <div className="mb-3 text-lg font-bold">
+                    <Card key={library.uuid}>
+                        <CardContent>
+                            <Link
+                                href={route('question-library.edit', {
+                                    id: library.uuid,
+                                })}
+                            >
+                                <div className="mb-3 font-bold">
                                     {library.title}
                                 </div>
-                                <div className="text-sm text-muted-foreground">
-                                    {library.questions_count} questions
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </Link>
+                            </Link>
+                            <div className="text-sm text-muted-foreground">
+                                {library.questions_count} questions
+                            </div>
+                        </CardContent>
+                    </Card>
                 ))}
             </div>
 

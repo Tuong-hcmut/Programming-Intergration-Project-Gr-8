@@ -36,6 +36,10 @@ class QuestionPolicy
      */
     public function update(User $user, Question $question): bool
     {
+        if ($question->questionLibrary->owner_id === $user->id) {
+            return true;
+        }
+
         return false;
     }
 
@@ -44,6 +48,10 @@ class QuestionPolicy
      */
     public function delete(User $user, Question $question): bool
     {
+        if ($question->questionLibrary->owner_id === $user->id) {
+            return true;
+        }
+
         return false;
     }
 

@@ -72,7 +72,10 @@ class QuestionLibraryController extends Controller
      */
     public function update(UpdateQuestionLibraryRequest $request, QuestionLibrary $questionLibrary)
     {
-        //
+        $questionLibrary->fill($request->validated());
+        $questionLibrary->save();
+
+        return redirect()->back();
     }
 
     /**

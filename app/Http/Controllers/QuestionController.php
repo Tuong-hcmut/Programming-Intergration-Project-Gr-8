@@ -42,6 +42,8 @@ class QuestionController extends Controller
      */
     public function show(Question $question)
     {
+        Gate::authorize('view', $question);
+
         return inertia()->render('Questions/Show', [
             'question' => $question,
             'answers' => $question->answers()->with('user')->get(),
@@ -61,7 +63,11 @@ class QuestionController extends Controller
      */
     public function update(UpdateQuestionRequest $request, Question $question)
     {
-        //
+        Gate::authorize('update', $question);
+
+        $question->fill($request->validated())->save();
+
+        return redirect()->back();
     }
 
     /**
@@ -69,6 +75,10 @@ class QuestionController extends Controller
      */
     public function destroy(Question $question)
     {
-        //
+        Gate::authorize('delete', $question);
+
+        $question->delete();
+
+        return redirect()->back();
     }
 }

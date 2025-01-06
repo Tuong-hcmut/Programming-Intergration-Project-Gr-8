@@ -130,6 +130,30 @@ const Routes: Record<App.Route.Name, App.Route.Link> = {
         },
         methods: ['GET'],
     },
+    'question.update': {
+        name: 'question.update',
+        path: '/question/{question}',
+        params: {
+            question: 'string',
+        },
+        methods: ['PATCH'],
+    },
+    'question.delete': {
+        name: 'question.delete',
+        path: '/question/{question}',
+        params: {
+            question: 'string',
+        },
+        methods: ['DELETE'],
+    },
+    'answer.index': {
+        name: 'answer.index',
+        path: '/question/{question}/answer',
+        params: {
+            question: 'string',
+        },
+        methods: ['GET'],
+    },
     'answer.create': {
         name: 'answer.create',
         path: '/question/{question}/answer',
@@ -137,6 +161,15 @@ const Routes: Record<App.Route.Name, App.Route.Link> = {
             question: 'string',
         },
         methods: ['POST'],
+    },
+    'answer.show': {
+        name: 'answer.show',
+        path: '/question/{question}/answer/{answer}',
+        params: {
+            question: 'string',
+            answer: 'string',
+        },
+        methods: ['GET'],
     },
     questions: {
         name: 'questions',
@@ -209,7 +242,8 @@ const Routes: Record<App.Route.Name, App.Route.Link> = {
 
 declare global {
     interface Window {
-        Routes: Record<App.Route.Name, App.Route.Link>;
+        Routes: Record;Route.Name,.App Route.Link.
+<App>
     }
 }
 

@@ -7,6 +7,7 @@ declare module 'ziggy-js' {
         'profile.edit': [];
         'profile.update': [];
         'profile.destroy': [];
+        'question.store': [];
         'question.show': [
             {
                 name: 'question';
@@ -14,7 +15,38 @@ declare module 'ziggy-js' {
                 binding: 'id';
             },
         ];
-        'question.store': [];
+        'question.update': [
+            {
+                name: 'question';
+                required: true;
+                binding: 'id';
+            },
+        ];
+        'question.delete': [
+            {
+                name: 'question';
+                required: true;
+                binding: 'id';
+            },
+        ];
+        'answer.index': [
+            {
+                name: 'question';
+                required: true;
+            },
+        ];
+        'answer.show': [
+            {
+                name: 'question';
+                required: true;
+                binding: 'id';
+            },
+            {
+                name: 'answer';
+                required: true;
+                binding: 'id';
+            },
+        ];
         'answer.create': [
             {
                 name: 'question';

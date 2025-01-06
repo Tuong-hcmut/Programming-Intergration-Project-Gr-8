@@ -12,7 +12,7 @@ import {
 import { FieldDescription, InertiaFormField } from '@/components/ui/form';
 import Authenticated from '@/Layouts/AuthenticatedLayout';
 import { preventDefaultFormSubmit } from '@/lib/utils';
-import { useForm } from '@inertiajs/react';
+import { router, useForm } from '@inertiajs/react';
 import { SaveIcon } from 'lucide-react';
 import { PropsWithChildren, useState } from 'react';
 import { toast } from 'sonner';
@@ -35,7 +35,7 @@ function EditQuestionModal({
 
     const submit = preventDefaultFormSubmit(() => {
         if (question) {
-            form.patch(route('question.update'), {
+            form.patch(route('question.update', question.id), {
                 onSuccess: () => {
                     toast('Question updated!');
                     form.reset();
@@ -43,18 +43,13 @@ function EditQuestionModal({
                 },
             });
         } else {
-            form.post(
-                route('question.store', {
-                    question_library_id: questionLibrary.id,
-                }),
-                {
-                    onSuccess: () => {
-                        toast('Question created!');
-                        form.reset();
-                        setOpen(false);
-                    },
+            form.post(route('question.store', questionLibrary.id), {
+                onSuccess: () => {
+                    toast('Question created!');
+                    form.reset();
+                    setOpen(false);
                 },
-            );
+            });
         }
     });
 
@@ -65,7 +60,9 @@ function EditQuestionModal({
             <DialogContent>
                 <form onSubmit={submit}>
                     <DialogHeader>
-                        <DialogTitle>{action} question</DialogTitle>
+                        <DialogTitle className="mb-3">
+                            {action} question
+                        </DialogTitle>
                     </DialogHeader>
 
                     <div className="space-y-3">
@@ -115,35 +112,86 @@ export default function Edit({
 }) {
     const form = useForm(question_library);
 
+    const updateLibrary = preventDefaultFormSubmit(() => {
+        form.patch(route('question-library.update', question_library.uuid), {
+            onSuccess: () => {
+                toast('Question library updated!');
+            },
+        });
+    });
+
     return (
-        <Authenticated header={`Edit - ${question_library.title}`}>
+        <Authenticated header={question_library.title}>
             <Card className="max-w-constrained mx-auto">
                 <CardContent>
-                    <InertiaFormField
-                        form={form}
-                        fieldName="title"
-                        displayName="Title"
-                        inputProps={{ readOnly: true }}
-                    />
+                    {editable ? (
+                        <form
+                            className="flex w-full items-end gap-3"
+                            onSubmit={updateLibrary}
+                        >
+                            <InertiaFormField
+                                form={form}
+                                fieldName="title"
+                                displayName="Title"
+                                className="w-full"
+                            />
+
+                            <Button>Update</Button>
+                        </form>
+                    ) : (
+                        <div className="text-xl font-bold">
+                            {question_library.title}
+                        </div>
+                    )}
 
                     <div className="mt-5 flex flex-col gap-3">
                         <div className="text-xl font-bold">
                             Questions (total: {questions.length})
                         </div>
                         {questions.map((question) => (
-                            <div key={question.id}>
-                                <div>{question.text}</div>
-                                <div className="flex gap-1">
-                                    {question.cue_words.map((word) => (
-                                        <Badge
-                                            key={word}
-                                            variant="secondary"
-                                            className="shadow"
-                                        >
-                                            {word}
-                                        </Badge>
-                                    ))}
+                            <div
+                                key={question.id}
+                                className="flex items-start justify-between hover:bg-muted"
+                            >
+                                <div>
+                                    <div>{question.text}</div>
+                                    <div className="flex gap-1">
+                                        {question.cue_words.map((word) => (
+                                            <Badge
+                                                key={word}
+                                                variant="secondary"
+                                                className="shadow"
+                                            >
+                                                {word}
+                                            </Badge>
+                                        ))}
+                                    </div>
                                 </div>
+                                {editable && (
+                                    <div className="flex gap-1">
+                                        <EditQuestionModal
+                                            questionLibrary={question_library}
+                                            question={question}
+                                        >
+                                            <Button size="sm">Edit</Button>
+                                        </EditQuestionModal>
+
+                                        <Button
+                                            size="sm"
+                                            variant="destructive"
+                                            onClick={() =>
+                                                router.delete(
+                                                    route(
+                                                        'question.delete',
+                                                        question.id,
+                                                    ),
+                                                )
+                                            }
+                                        >
+                                            Delete
+                                        </Button>
+                                    </div>
+                                )}
                             </div>
                         ))}
                         {editable && (

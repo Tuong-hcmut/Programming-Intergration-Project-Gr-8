@@ -7,6 +7,8 @@ declare namespace App.Route {
     export type Name =
         | ''
         | 'answer.create'
+        | 'answer.index'
+        | 'answer.show'
         | 'confirm.password'
         | 'dashboard'
         | 'login'
@@ -24,8 +26,10 @@ declare namespace App.Route {
         | 'question-library.edit'
         | 'question-library.store'
         | 'question-library.update'
+        | 'question.delete'
         | 'question.show'
         | 'question.store'
+        | 'question.update'
         | 'questions'
         | 'register'
         | 'sanctum.csrf-cookie'
@@ -49,6 +53,7 @@ declare namespace App.Route {
         | '/question-library/{questionLibrary}'
         | '/question/{question}'
         | '/question/{question}/answer'
+        | '/question/{question}/answer/{answer}'
         | '/questions'
         | '/register'
         | '/reset-password'
@@ -59,20 +64,34 @@ declare namespace App.Route {
         | '/verify-email'
         | '/verify-email/{id}/{hash}';
   export interface Params {
-      '': never;
-      'password.confirm': never;
-      'confirm.password': never;
-      dashboard: never;
-      'verification.send': never;
-      'password.request': never;
-      'password.email': never;
-      login: never;
-      login: never;
-      logout: never;
-      'password.update': never;
-      'profile.edit': never;
-      'profile.update': never;
-      'profile.destroy': never;
+      '': n;
+      ever;
+      'password.confirm': n;
+      ever;
+      'confirm.password': n;
+      ever;
+      dashboard: n;
+      ever;
+      'verification.send': n;
+      ever;
+      'password.request': n;
+      ever;
+      'password.email': n;
+      ever;
+      login: n;
+      ever;
+      login: n;
+      ever;
+      logout: n;
+      ever;
+      'password.update': n;
+      ever;
+      'profile.edit': n;
+      ever;
+      'profile.update': n;
+      ever;
+      'profile.destroy': n;
+      ever;
       'question.store': n;
       ever;
       'question-library': n;
@@ -88,22 +107,42 @@ declare namespace App.Route {
       'question.show': {
           question: App.Route.ParamType;
       };
-      'answer.create': {
-  ;        question: App.Route.ParamType;
+      'question.update': {
+          question: App.Route.ParamType;
       };
-      questions: never;
-      register: never;
-      register: never;
-      'password.store': never;
+      'question.delete': {
+          question: App.Route.ParamType;
+      };
+      'answer.index': {
+          question: App.Route.ParamType;
+      };
+      'answer.create': {
+          question: App.Route.ParamType;
+      };
+      'answer.show': {
+          question: App.Route.ParamType;
+          answer: App.Route.ParamType;
+      };
+      questions: n;
+      ever;
+      register: n;
+      ever;
+      register: n;
+      ever;
+      'password.store': n;
+      ever;
       'password.reset': {
           token: App.Route.ParamType;
       };
-      'sanctum.csrf-cookie': never;
+      'sanctum.csrf-cookie': n;
+      ever;
       'storage.local': {
           path: App.Route.ParamType;
       };
-      up: never;
-      'verification.notice': never;
+      up: n;
+      ever;
+      'verification.notice': n;
+      ever;
       'verification.verify': {
           id: App.Route.ParamType;
           hash: App.Route.ParamType;

@@ -24,24 +24,25 @@ declare namespace App.Models {
       question_library_id?: number;
       answers_count?: number;
       answers?: App.Models.Answer[];
-      questionLibrary?: App.M;odels.QuestionLibrary;
+      questionLibrary?: App.Models.QuestionLibrary;
   }
   export interface User {
-    id: number
-    name: string
-    email: string
-    email_verified_at?: string
-    password: string
-    remember_token?: string
-    created_at?: string
-    updated_at?: string
+      id: number;
+      name: string;
+      email: string;
+      email_verified_at?: string;
+      password: string;
+      remember_token?: string;
+      created_at?: string;
+      updated_at?: string;
       is_teacher: number;
-    answers_count?: number
-      question_libraries_count?: number;
-    notifications_count?: number
-    answers?: App.Models.Answer[]
+      answers_count?: number;
+      questi;
+      on_libraries_count?: number;
+      notifications_count?: number;
+      answers?: App.Models.Answer[];
       questionLibraries?: App.Models.QuestionLibrary[];
-    notifications?: any[]
+      notifications?: any[];
   }
   export interface Answer {
     id: number
@@ -58,43 +59,43 @@ declare namespace App.Models {
 }
 
 declare namespace App {
-  export interface PaginateLink {
-    url: string
-    label: string
-    active: boolean
-  }
-  export interface Paginate<T = any> {
-    data: T[]
-    current_page: number
-    first_page_url: string
-    from: number
-    last_page: number
-    last_page_url: string
-    links: App.PaginateLink[]
-    next_page_url: string
-    path: string
-    per_page: number
-    prev_page_url: string
-    to: number
-    total: number
-  }
-  export interface ApiPaginate<T = any> {
-    data: T[]
-    links: {
-      first?: string
-      last?: string
-      prev?: string
-      next?: string
+    export interface PaginateLink {
+        url: string;
+        label: string;
+        active: boolean;
     }
-    meta: {
-      current_page: number
-      from: number
-      last_page: number
-      links: App.PaginateLink[]
-      path: string
-      per_page: number
-      to: number
-      total: number
+    export interface Paginate<T = any> {
+        data: T[];
+        current_page: number;
+        first_page_url: string;
+        from: number;
+        last_page: number;
+        last_page_url: string;
+        links: App.PaginateLink[];
+        next_page_url: string;
+        path: string;
+        per_page: number;
+        prev_page_url: string;
+        to: number;
+        total: number;
     }
-  }
+    export interface ApiPaginate<T = any> {
+        data: T[];
+        links: {
+            first?: string;
+            last?: string;
+            prev?: string;
+            next?: string;
+        };
+        meta: {
+            current_page: number;
+            from: number;
+            last_page: number;
+            links: App.PaginateLink[];
+            path: string;
+            per_page: number;
+            to: number;
+            total: number;
+        };
+    }
 }

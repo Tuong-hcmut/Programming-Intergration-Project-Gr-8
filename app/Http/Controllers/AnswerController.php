@@ -9,6 +9,7 @@ use App\Models\Answer;
 use App\Models\Question;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 
 class AnswerController extends Controller
@@ -26,6 +27,9 @@ class AnswerController extends Controller
      */
     public function create(Question $question, Request $request): RedirectResponse
     {
+        Gate::authorize('view', $question);
+        Gate::authorize('create', Answer::class);
+
         $form = $request->validate([
             'answerAudio' => 'required|mimes:flac,mp3,mp4,mpeg,mpga,m4a,ogg,wav,webm',
         ]);
@@ -64,7 +68,11 @@ class AnswerController extends Controller
      */
     public function show(Question $question, Answer $answer)
     {
-        //
+        return inertia()->render('Answers/Show', [
+            'question' => $question,
+            'answer' => $answer,
+            'answers' => $question->answers()->with('user')->get(),
+        ]);
     }
 
     /**
