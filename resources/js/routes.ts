@@ -242,8 +242,7 @@ const Routes: Record<App.Route.Name, App.Route.Link> = {
 
 declare global {
     interface Window {
-        Routes: Record;Route.Name,.App Route.Link.
-<App>
+        Routes: Record<App.Route.Name, App.Route.Link>;
     }
 }
 
