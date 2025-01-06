@@ -28,6 +28,7 @@ function EditQuestionModal({
     const [open, setOpen] = useState(false);
     const action = question ? 'Edit' : 'Create';
     const form = useForm({
+        question_library_id: questionLibrary.id,
         text: '',
         cue_words: [],
         ...(question || {}),
@@ -43,7 +44,7 @@ function EditQuestionModal({
                 },
             });
         } else {
-            form.post(route('question.store', questionLibrary.id), {
+            form.post(route('question.store'), {
                 onSuccess: () => {
                     toast('Question created!');
                     form.reset();
