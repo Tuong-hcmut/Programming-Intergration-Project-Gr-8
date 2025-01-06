@@ -23,9 +23,6 @@ jobs:
       - name: Run npm install
         run: npm install
 
-      - name: Remove cache
-        run: php artisan view:clear && php artisan cache:clear
-
       - name: Build assets
         run: npm run lint && npm run build
 
