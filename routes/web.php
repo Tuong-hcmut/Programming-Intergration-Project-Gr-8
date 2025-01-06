@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\QuestionLibraryController;
 use App\Models\Question;
+use App\Models\QuestionLibrary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -19,7 +20,9 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return inertia()->render('Dashboard');
+    return inertia()->render('Dashboard', [
+        'question_libraries' => QuestionLibrary::withCount('questions')->get(),
+    ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/questions', function (Request $request) {
