@@ -45,7 +45,7 @@ class QuestionController extends Controller
         Gate::authorize('view', $question);
 
         return inertia()->render('Questions/Show', [
-            'question' => $question,
+            'question' => $question->load('questionLibrary'),
             'answers' => $question->answers()->with('user')->get(),
         ]);
     }

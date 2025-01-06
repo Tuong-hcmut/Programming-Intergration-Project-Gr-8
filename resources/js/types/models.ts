@@ -7,6 +7,7 @@ export type Question = ExtendModel<
     App.Models.Question,
     {
         cue_words: string[];
+        question_library: App.Models.QuestionLibrary | null;
     }
 >;
 export type Answer = ExtendModel<

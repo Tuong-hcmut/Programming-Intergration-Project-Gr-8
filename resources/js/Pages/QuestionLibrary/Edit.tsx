@@ -1,5 +1,5 @@
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
     Dialog,
@@ -12,7 +12,7 @@ import {
 import { FieldDescription, InertiaFormField } from '@/components/ui/form';
 import Authenticated from '@/Layouts/AuthenticatedLayout';
 import { preventDefaultFormSubmit } from '@/lib/utils';
-import { router, useForm } from '@inertiajs/react';
+import { Link, router, useForm } from '@inertiajs/react';
 import { SaveIcon } from 'lucide-react';
 import { PropsWithChildren, useState } from 'react';
 import { toast } from 'sonner';
@@ -167,31 +167,48 @@ export default function Edit({
                                         ))}
                                     </div>
                                 </div>
-                                {editable && (
-                                    <div className="flex gap-1">
-                                        <EditQuestionModal
-                                            questionLibrary={question_library}
-                                            question={question}
-                                        >
-                                            <Button size="sm">Edit</Button>
-                                        </EditQuestionModal>
 
-                                        <Button
-                                            size="sm"
-                                            variant="destructive"
-                                            onClick={() =>
-                                                router.delete(
-                                                    route(
-                                                        'question.delete',
-                                                        question.id,
-                                                    ),
-                                                )
-                                            }
-                                        >
-                                            Delete
-                                        </Button>
-                                    </div>
-                                )}
+                                <div className="flex gap-1">
+                                    <Link
+                                        href={route(
+                                            'question.show',
+                                            question.id,
+                                        )}
+                                        className={buttonVariants({
+                                            size: 'sm',
+                                        })}
+                                    >
+                                        Attempt
+                                    </Link>
+
+                                    {editable && (
+                                        <>
+                                            <EditQuestionModal
+                                                questionLibrary={
+                                                    question_library
+                                                }
+                                                question={question}
+                                            >
+                                                <Button size="sm">Edit</Button>
+                                            </EditQuestionModal>
+
+                                            <Button
+                                                size="sm"
+                                                variant="destructive"
+                                                onClick={() =>
+                                                    router.delete(
+                                                        route(
+                                                            'question.delete',
+                                                            question.d,
+                                                        ),
+                                                    )
+                                                }
+                                            >
+                                                Delete
+                                            </Button>
+                                        </>
+                                    )}
+                                </div>
                             </div>
                         ))}
                         {editable && (
