@@ -50,9 +50,11 @@ Route::get('/questions', function (Request $request) {
 })->middleware(['auth', 'verified'])->name('questions');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::prefix('profile')->group(function () {
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    });
 
     Route::prefix('question')->group(function () {
         Route::post('/', [QuestionController::class, 'store'])->name('question.store');
@@ -62,14 +64,14 @@ Route::middleware('auth')->group(function () {
             ->name('question.update');
         Route::delete('/{question}', [QuestionController::class, 'destroy'])
             ->name('question.delete');
-    });
 
-    Route::get('/question/{question}/answer', [AnswerController::class, 'index'])
-        ->name('answer.index');
-    Route::get('/question/{question}/answer/{answer}', [AnswerController::class, 'show'])
-        ->name('answer.show');
-    Route::post('/question/{question}/answer', [AnswerController::class, 'create'])
-        ->name('answer.create');
+        Route::get('/{question}/answer', [AnswerController::class, 'index'])
+            ->name('answer.index');
+        Route::get('/{question}/answer/{answer}', [AnswerController::class, 'show'])
+            ->name('answer.show');
+        Route::post('/{question}/answer', [AnswerController::class, 'create'])
+            ->name('answer.create');
+    });
 
     Route::prefix('question-library')->group(function () {
         Route::get('/', [QuestionLibraryController::class, 'index'])->name('question-library');
