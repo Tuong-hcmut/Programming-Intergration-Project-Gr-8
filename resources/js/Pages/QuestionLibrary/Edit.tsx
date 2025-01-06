@@ -199,7 +199,7 @@ export default function Edit({
                                                     router.delete(
                                                         route(
                                                             'question.delete',
-                                                            question.d,
+                                                            question.id,
                                                         ),
                                                     )
                                                 }

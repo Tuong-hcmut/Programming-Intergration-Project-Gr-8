@@ -40,12 +40,13 @@ const PaginationItem = React.forwardRef<
 ));
 PaginationItem.displayName = 'PaginationItem';
 
-type PaginationLinkProps = {
-    isActive?: boolean;
-    onProgress?: InertiaLinkProps['onProgress'];
-    onError?: InertiaLinkProps['onError'];
-} & Pick<ButtonProps, 'size'> &
-    React.ComponentProps<'a'>;
+type PaginationLinkProps = Pick<ButtonProps, 'size'> &
+    React.ComponentProps<'a'> & {
+        isActive?: boolean;
+        onProgress?: InertiaLinkProps['onProgress'];
+        onError?: InertiaLinkProps['onError'];
+        onClick?: InertiaLinkProps['onClick'];
+    };
 
 const PaginationLink = ({
     className,
