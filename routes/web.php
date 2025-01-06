@@ -51,35 +51,41 @@ Route::get('/questions', function (Request $request) {
 
 Route::middleware('auth')->group(function () {
     Route::prefix('profile')->group(function () {
-        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+        Route::get('/', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
 
     Route::prefix('question')->group(function () {
         Route::post('/', [QuestionController::class, 'store'])->name('question.store');
-        Route::get('/{question}', [QuestionController::class, 'show'])
-            ->name('question.show');
-        Route::patch('/{question}', [QuestionController::class, 'update'])
-            ->name('question.update');
-        Route::delete('/{question}', [QuestionController::class, 'destroy'])
-            ->name('question.delete');
 
-        Route::get('/{question}/answer', [AnswerController::class, 'index'])
-            ->name('answer.index');
-        Route::get('/{question}/answer/{answer}', [AnswerController::class, 'show'])
-            ->name('answer.show');
-        Route::post('/{question}/answer', [AnswerController::class, 'create'])
-            ->name('answer.create');
+        Route::prefix('/{question}')->group(function () {
+            Route::get('/', [QuestionController::class, 'show'])
+                ->name('question.show');
+            Route::patch('/', [QuestionController::class, 'update'])
+                ->name('question.update');
+            Route::delete('/', [QuestionController::class, 'destroy'])
+                ->name('question.delete');
+
+            Route::get('/answer', [AnswerController::class, 'index'])
+                ->name('answer.index');
+            Route::get('/answer/{answer}', [AnswerController::class, 'show'])
+                ->name('answer.show');
+            Route::post('/answer', [AnswerController::class, 'create'])
+                ->name('answer.create');
+        });
     });
 
     Route::prefix('question-library')->group(function () {
         Route::get('/', [QuestionLibraryController::class, 'index'])->name('question-library');
-        Route::get('/{questionLibrary:uuid}', [QuestionLibraryController::class, 'edit'])
-            ->name('question-library.edit');
         Route::post('/', [QuestionLibraryController::class, 'store'])->name('question-library.store');
-        Route::patch('/{questionLibrary:uuid}', [QuestionLibraryController::class, 'update'])
-            ->name('question-library.update');
+
+        Route::prefix('{questionLibrary:uuid}')->group(function () {
+            Route::get('/', [QuestionLibraryController::class, 'edit'])
+                ->name('question-library.edit');
+            Route::patch('/', [QuestionLibraryController::class, 'update'])
+                ->name('question-library.update');
+        });
     });
 });
 

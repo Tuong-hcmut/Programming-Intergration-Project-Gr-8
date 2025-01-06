@@ -52,15 +52,15 @@ const Ziggy = {
             uri: 'question-library',
             methods: ['GET', 'HEAD'],
         },
+        'question-library.store': {
+            uri: 'question-library',
+            methods: ['POST'],
+        },
         'question-library.edit': {
             uri: 'question-library/{questionLibrary}',
             methods: ['GET', 'HEAD'],
             parameters: ['questionLibrary'],
             bindings: { questionLibrary: 'uuid' },
-        },
-        'question-library.store': {
-            uri: 'question-library',
-            methods: ['POST'],
         },
         'question-library.update': {
             uri: 'question-library/{questionLibrary}',

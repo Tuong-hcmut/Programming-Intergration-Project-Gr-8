@@ -37,8 +37,7 @@ declare namespace App.Models {
       updated_at?: string;
       is_teacher: number;
       answers_count?: number;
-      questi;
-      on_libraries_count?: number;
+      question_libraries_count?: number;
       notifications_count?: number;
       answers?: App.Models.Answer[];
       questionLibraries?: App.Models.QuestionLibrary[];
@@ -64,6 +63,7 @@ declare namespace App {
         label: string;
         active: boolean;
     }
+
     export interface Paginate<T = any> {
         data: T[];
         current_page: number;
@@ -79,6 +79,7 @@ declare namespace App {
         to: number;
         total: number;
     }
+
     export interface ApiPaginate<T = any> {
         data: T[];
         links: {

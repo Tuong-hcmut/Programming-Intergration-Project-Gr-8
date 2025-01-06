@@ -55,6 +55,7 @@ declare module 'ziggy-js' {
             },
         ];
         'question-library': [];
+        'question-library.store': [];
         'question-library.edit': [
             {
                 name: 'questionLibrary';
@@ -62,7 +63,6 @@ declare module 'ziggy-js' {
                 binding: 'uuid';
             },
         ];
-        'question-library.store': [];
         'question-library.update': [
             {
                 name: 'questionLibrary';
