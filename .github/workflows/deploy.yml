@@ -3,7 +3,7 @@ on: [ push, workflow_dispatch ]
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: github.repository == 'verbal-mate'
+    if: github.repository == 'KhanhhNe/verbal-mate'
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
